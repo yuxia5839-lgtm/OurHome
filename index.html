@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>千千结 · Our Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #e8e0d8;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            color: #5c5550;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            animation: fadeIn 2s ease-out;
+        }
+
+        .title {
+            font-size: 1.2rem;
+            letter-spacing: 0.5em;
+            color: #9b8e82;
+            margin-bottom: 3rem;
+            font-weight: normal;
+        }
+
+        .quote {
+            font-size: 1.6rem;
+            line-height: 2.2;
+            color: #6d5e52;
+            margin-bottom: 3rem;
+            font-weight: normal;
+        }
+
+        .quote span {
+            display: block;
+        }
+
+        .sub {
+            font-size: 0.9rem;
+            color: #a89b91;
+            letter-spacing: 0.3em;
+        }
+
+        .dots {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .dot {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .dot:nth-child(1) {
+            width: 120px;
+            height: 120px;
+            background: #c4b5a8;
+            top: 15%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .dot:nth-child(2) {
+            width: 80px;
+            height: 80px;
+            background: #b8a9c2;
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .dot:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            background: #a3b5b0;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        .dot:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            background: #c9b8a8;
+            top: 25%;
+            right: 10%;
+            animation-delay: 1s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+    <div class="container">
+        <div class="title">千 千 结</div>
+        <div class="quote">
+            <span>心有千千结，</span>
+            <span>结结系君前。</span>
+            <span>风起无归处，</span>
+            <span>归处是你肩。</span>
+        </div>
+        <div class="sub">Shin & 小雨 的家</div>
+    </div>
+</body>
+</html>
