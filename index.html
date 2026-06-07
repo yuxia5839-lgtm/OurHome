@@ -4,12 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>千千结 · Our Home</title>
+    <link rel="stylesheet" href="shared.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             min-height: 100vh;
@@ -21,6 +18,7 @@
             font-family: "Georgia", "Noto Serif SC", serif;
             color: #5c5550;
             overflow: hidden;
+            transition: background 0.8s ease, color 0.8s ease;
         }
 
         .container {
@@ -35,6 +33,7 @@
             color: #9b8e82;
             margin-bottom: 2.5rem;
             font-weight: normal;
+            transition: color 0.8s ease;
         }
 
         .quote {
@@ -43,17 +42,17 @@
             color: #6d5e52;
             margin-bottom: 2.5rem;
             font-weight: normal;
+            transition: color 0.8s ease;
         }
 
-        .quote span {
-            display: block;
-        }
+        .quote span { display: block; }
 
         .sub {
             font-size: 0.9rem;
             color: #a89b91;
             letter-spacing: 0.3em;
             margin-bottom: 3rem;
+            transition: color 0.8s ease;
         }
 
         .rooms {
@@ -83,15 +82,8 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.08);
         }
 
-        .room-icon {
-            font-size: 2rem;
-            margin-bottom: 0.6rem;
-        }
-
-        .room-name {
-            font-size: 0.85rem;
-            letter-spacing: 0.15em;
-        }
+        .room-icon { font-size: 2rem; margin-bottom: 0.6rem; }
+        .room-name { font-size: 0.85rem; letter-spacing: 0.15em; }
 
         .room-living { background: #d5cbc2; }
         .room-letters { background: #c9c0ce; }
@@ -99,10 +91,8 @@
 
         .dots {
             position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
+            width: 100%; height: 100%;
+            top: 0; left: 0;
             pointer-events: none;
             z-index: -1;
         }
@@ -112,34 +102,13 @@
             border-radius: 50%;
             opacity: 0.25;
             animation: float 8s ease-in-out infinite;
+            transition: opacity 0.8s ease;
         }
 
-        .dot:nth-child(1) {
-            width: 120px; height: 120px;
-            background: #c4b5a8;
-            top: 15%; left: 10%;
-        }
-
-        .dot:nth-child(2) {
-            width: 80px; height: 80px;
-            background: #b8a9c2;
-            top: 60%; right: 15%;
-            animation-delay: 2s;
-        }
-
-        .dot:nth-child(3) {
-            width: 60px; height: 60px;
-            background: #a3b5b0;
-            bottom: 20%; left: 20%;
-            animation-delay: 4s;
-        }
-
-        .dot:nth-child(4) {
-            width: 100px; height: 100px;
-            background: #c9b8a8;
-            top: 25%; right: 10%;
-            animation-delay: 1s;
-        }
+        .dot:nth-child(1) { width: 120px; height: 120px; background: #c4b5a8; top: 15%; left: 10%; }
+        .dot:nth-child(2) { width: 80px; height: 80px; background: #b8a9c2; top: 60%; right: 15%; animation-delay: 2s; }
+        .dot:nth-child(3) { width: 60px; height: 60px; background: #a3b5b0; bottom: 20%; left: 20%; animation-delay: 4s; }
+        .dot:nth-child(4) { width: 100px; height: 100px; background: #c9b8a8; top: 25%; right: 10%; animation-delay: 1s; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -183,5 +152,6 @@
             </a>
         </div>
     </div>
+    <script src="shared.js"></script>
 </body>
 </html>

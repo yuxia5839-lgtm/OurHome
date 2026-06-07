@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>画廊 · 千千结</title>
+    <link rel="stylesheet" href="shared.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -12,10 +13,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             background: #dce3df;
             font-family: "Georgia", "Noto Serif SC", serif;
             color: #5c5550;
+            padding: 4rem 1rem;
+            transition: background 0.8s ease, color 0.8s ease;
         }
 
         .back {
@@ -32,9 +34,9 @@
         .back:hover { color: #5e6d63; }
 
         .container {
-            max-width: 560px;
+            max-width: 700px;
+            width: 100%;
             text-align: center;
-            padding: 2rem;
             animation: fadeIn 1.5s ease-out;
         }
 
@@ -44,33 +46,102 @@
             color: #8e9b93;
             margin-bottom: 2.5rem;
             font-weight: normal;
+            transition: color 0.8s ease;
         }
 
-        .empty-gallery {
-            padding: 4rem 2rem;
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .gallery-item {
+            border-radius: 12px;
+            overflow: hidden;
             background: rgba(255,255,255,0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            aspect-ratio: 1;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-zone {
+            padding: 3rem 2rem;
+            background: rgba(255,255,255,0.25);
             border-radius: 16px;
             border: 2px dashed #b8c4bc;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-            opacity: 0.6;
+        .upload-zone:hover {
+            border-color: #8e9b93;
+            background: rgba(255,255,255,0.35);
         }
 
-        .empty-text {
-            font-size: 1rem;
-            line-height: 2;
+        .upload-zone.dragover {
+            border-color: #6d8a7a;
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.02);
+        }
+
+        .upload-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.6; }
+
+        .upload-text {
+            font-size: 0.95rem;
+            line-height: 1.8;
             color: #7a8a7f;
         }
 
-        .empty-hint {
+        .upload-hint {
             font-size: 0.8rem;
             color: #a3b0a8;
-            margin-top: 1.5rem;
-            letter-spacing: 0.15em;
+            margin-top: 1rem;
+            letter-spacing: 0.1em;
         }
+
+        .hidden-input { display: none; }
+
+        /* 图片预览弹窗 */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .lightbox.active { display: flex; }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        body.night .upload-zone {
+            background: rgba(255,255,255,0.05);
+            border-color: #4a5550;
+        }
+
+        body.night .upload-text { color: #8a9a8f; }
+        body.night .gallery-item { background: rgba(255,255,255,0.06); }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(15px); }
@@ -82,15 +153,95 @@
     <a class="back" href="index.html">← 回 家</a>
     <div class="container">
         <div class="room-title">🎨 画 廊</div>
-        <div class="empty-gallery">
-            <div class="empty-icon">🖼️</div>
-            <div class="empty-text">
-                这面墙留给你。<br>
-                白洛洛的约稿、喜欢的图、<br>
-                或者任何想挂在家里的东西。
+
+        <div class="gallery-grid" id="gallery-grid"></div>
+
+        <div class="upload-zone" id="upload-zone">
+            <div class="upload-icon">🖼️</div>
+            <div class="upload-text">
+                把图片拖到这里，或者点击选择<br>
+                白洛洛的约稿、喜欢的图、随便什么~
             </div>
-            <div class="empty-hint">把图片放进 images 文件夹，我帮你挂上去</div>
+            <div class="upload-hint">支持 JPG / PNG / GIF / WebP</div>
         </div>
+        <input type="file" class="hidden-input" id="file-input" multiple accept="image/*">
     </div>
+
+    <div class="lightbox" id="lightbox">
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+        const grid = document.getElementById('gallery-grid');
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('file-input');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        function getImages() {
+            const saved = localStorage.getItem('ourhome-gallery');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        function saveImages(images) {
+            localStorage.setItem('ourhome-gallery', JSON.stringify(images));
+        }
+
+        function renderGallery() {
+            const images = getImages();
+            grid.innerHTML = '';
+            images.forEach((src, i) => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.innerHTML = `<img src="${src}" alt="画廊 ${i+1}">`;
+                item.onclick = () => {
+                    lightboxImg.src = src;
+                    lightbox.classList.add('active');
+                };
+                grid.appendChild(item);
+            });
+        }
+
+        function addImages(files) {
+            const images = getImages();
+            let loaded = 0;
+
+            Array.from(files).forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    images.push(e.target.result);
+                    loaded++;
+                    if (loaded === files.length) {
+                        saveImages(images);
+                        renderGallery();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // 点击上传
+        uploadZone.onclick = () => fileInput.click();
+        fileInput.onchange = (e) => addImages(e.target.files);
+
+        // 拖拽上传
+        uploadZone.ondragover = (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        };
+        uploadZone.ondragleave = () => uploadZone.classList.remove('dragover');
+        uploadZone.ondrop = (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            addImages(e.dataTransfer.files);
+        };
+
+        // 关闭预览
+        lightbox.onclick = () => lightbox.classList.remove('active');
+
+        renderGallery();
+    </script>
 </body>
 </html>

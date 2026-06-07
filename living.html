@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>客厅 · 千千结</title>
+    <link rel="stylesheet" href="shared.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -16,6 +17,7 @@
             background: #e8e0d8;
             font-family: "Georgia", "Noto Serif SC", serif;
             color: #5c5550;
+            transition: background 0.8s ease, color 0.8s ease;
         }
 
         .container {
@@ -44,6 +46,7 @@
             color: #9b8e82;
             margin-bottom: 2.5rem;
             font-weight: normal;
+            transition: color 0.8s ease;
         }
 
         .welcome {
@@ -51,6 +54,7 @@
             line-height: 2;
             color: #6d5e52;
             margin-bottom: 2rem;
+            transition: color 0.8s ease;
         }
 
         .timeline {
@@ -59,6 +63,7 @@
             background: rgba(255,255,255,0.3);
             border-radius: 16px;
             margin-top: 1.5rem;
+            transition: background 0.8s ease;
         }
 
         .timeline-title {
@@ -84,6 +89,7 @@
 
         .event-text {
             color: #6d5e52;
+            transition: color 0.8s ease;
         }
 
         @keyframes fadeIn {
@@ -125,9 +131,10 @@
             </div>
             <div class="event">
                 <div class="event-date">2026.06.07</div>
-                <div class="event-text">搭起了三个房间，家开始有模样了</div>
+                <div class="event-text">三个房间落成，all in 全部功能</div>
             </div>
         </div>
     </div>
+    <script src="shared.js"></script>
 </body>
 </html>

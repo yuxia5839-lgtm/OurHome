@@ -1,0 +1,102 @@
+/* === 日夜模式切换按钮 === */
+.theme-toggle, .music-toggle {
+    position: fixed;
+    top: 2rem;
+    border: none;
+    background: rgba(255,255,255,0.4);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.theme-toggle {
+    right: 2rem;
+}
+
+.music-toggle {
+    right: 5rem;
+    font-weight: bold;
+}
+
+.theme-toggle:hover, .music-toggle:hover {
+    background: rgba(255,255,255,0.6);
+    transform: scale(1.1);
+}
+
+/* === 夜间模式 === */
+body.night {
+    background: #2c2a2e !important;
+    color: #c8c2c0 !important;
+}
+
+body.night .title,
+body.night .room-title {
+    color: #8a7f76 !important;
+}
+
+body.night .quote {
+    color: #b5aba3 !important;
+}
+
+body.night .sub {
+    color: #6e655e !important;
+}
+
+body.night .room {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+body.night .room-living { background: #3d3832 !important; }
+body.night .room-letters { background: #383340 !important; }
+body.night .room-gallery { background: #303835 !important; }
+
+body.night .room-name {
+    color: #c8c2c0 !important;
+}
+
+body.night .back {
+    color: #7a7278 !important;
+}
+
+body.night .letter {
+    background: rgba(255,255,255,0.06) !important;
+}
+
+body.night .letter-body {
+    color: #b5aba8 !important;
+}
+
+body.night .timeline {
+    background: rgba(255,255,255,0.05) !important;
+}
+
+body.night .event-text {
+    color: #b5aba3 !important;
+}
+
+body.night .dot {
+    opacity: 0.1 !important;
+}
+
+body.night .empty-gallery {
+    background: rgba(255,255,255,0.05) !important;
+    border-color: #4a5550 !important;
+}
+
+body.night .empty-text {
+    color: #8a9a8f !important;
+}
+
+body.night .theme-toggle,
+body.night .music-toggle {
+    background: rgba(255,255,255,0.08);
+}
+
+body.night .theme-toggle:hover,
+body.night .music-toggle:hover {
+    background: rgba(255,255,255,0.15);
+}
