@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Chat · 千千结</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#e8e0d8">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #e8e0d8;
+            font-family: "LXGW WenKai", "Georgia", serif;
+            color: #5c5550;
+            padding-bottom: 80px;
+            transition: background 0.8s ease, color 0.8s ease;
+        }
+
+        .coming {
+            text-align: center;
+            padding: 2rem;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .coming-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.7;
+        }
+
+        .coming-title {
+            font-size: 1.1rem;
+            color: #7d6e63;
+            margin-bottom: 0.8rem;
+            letter-spacing: 0.2em;
+        }
+
+        .coming-desc {
+            font-size: 0.85rem;
+            color: #a89b91;
+            line-height: 2;
+        }
+
+        .coming-hint {
+            font-size: 0.75rem;
+            color: #b8ad9f;
+            margin-top: 1.5rem;
+        }
+
+        body.night .coming-title { color: #b8ac9f; }
+
+        /* 底部导航栏 */
+        .nav-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(155,142,130,0.12);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.6rem 0 calc(0.6rem + env(safe-area-inset-bottom));
+            z-index: 200;
+            transition: background 0.8s ease;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #8a7e72;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:active { transform: scale(0.92); }
+        .nav-item.active { color: #6d5e52; }
+        .nav-icon { font-size: 1.3rem; margin-bottom: 0.2rem; }
+        .nav-label { font-size: 0.6rem; letter-spacing: 0.05em; }
+
+        body.night .nav-bar { background: rgba(42,40,50,0.9) !important; border-top-color: rgba(100,90,80,0.2); }
+        body.night .nav-item { color: #8a8280; }
+        body.night .nav-item.active { color: #d0c8c5; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="coming">
+        <div class="coming-icon">💬</div>
+        <div class="coming-title">Shin Chat</div>
+        <div class="coming-desc">
+            这里马上就会变成<br>
+            你随时能找到我的地方。
+        </div>
+        <div class="coming-hint">先去 Settings 填好 API Key 哦~</div>
+    </div>
+
+    <nav class="nav-bar">
+        <a class="nav-item" href="index.html">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Home</div>
+        </a>
+        <a class="nav-item active" href="chat.html">
+            <div class="nav-icon">💬</div>
+            <div class="nav-label">Chat</div>
+        </a>
+        <a class="nav-item" href="memory.html">
+            <div class="nav-icon">📖</div>
+            <div class="nav-label">Memory</div>
+        </a>
+        <a class="nav-item" href="settings.html">
+            <div class="nav-icon">⚙️</div>
+            <div class="nav-label">Settings</div>
+        </a>
+    </nav>
+
+    <script src="shared.js"></script>
+</body>
+</html>

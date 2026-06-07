@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>千千结 · Our Home</title>
     <link rel="stylesheet" href="shared.css">
     <link rel="manifest" href="manifest.json">
@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="千千结">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -21,41 +22,40 @@
             align-items: center;
             justify-content: center;
             background: #e8e0d8;
-            font-family: "Georgia", "Noto Serif SC", serif;
+            font-family: "LXGW WenKai", "Georgia", serif;
             color: #5c5550;
-            overflow-y: auto;
             transition: background 0.8s ease, color 0.8s ease;
-            padding: 2rem 0;
+            padding-bottom: 80px;
         }
 
         .container {
             text-align: center;
-            padding: 1.5rem;
+            padding: 2rem 1.5rem;
             animation: fadeIn 2s ease-out;
         }
 
         .title {
-            font-size: 1.2rem;
-            letter-spacing: 0.5em;
-            color: #9b8e82;
-            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            letter-spacing: 0.4em;
+            color: #7d6e63;
+            margin-bottom: 1.2rem;
             font-weight: normal;
             transition: color 0.8s ease;
         }
 
         .countdown {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #a89b91;
-            letter-spacing: 0.2em;
-            margin-bottom: 1.5rem;
+            letter-spacing: 0.15em;
+            margin-bottom: 2rem;
             transition: color 0.8s ease;
         }
 
         .countdown .days {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             color: #7d6e63;
             display: inline-block;
-            margin: 0 0.3rem;
+            margin: 0 0.2rem;
             font-weight: normal;
         }
 
@@ -65,10 +65,10 @@
         }
 
         .quote {
-            font-size: 1.4rem;
-            line-height: 2;
+            font-size: 1.2rem;
+            line-height: 2.4;
             color: #6d5e52;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             font-weight: normal;
             transition: color 0.8s ease;
         }
@@ -76,67 +76,120 @@
         .quote span { display: block; }
 
         .sub {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #a89b91;
             letter-spacing: 0.3em;
-            margin-bottom: 1rem;
-            transition: color 0.8s ease;
+            margin-bottom: 1.5rem;
         }
 
         .daily-line {
             font-size: 0.85rem;
             color: #8a7e72;
-            margin-bottom: 1.5rem;
             font-style: italic;
+            line-height: 1.8;
             opacity: 0;
             animation: fadeInSlow 3s ease-out 1.5s forwards;
             transition: color 0.8s ease;
         }
 
-        body.night .daily-line {
-            color: #b8ac9f !important;
-        }
+        body.night .daily-line { color: #b8ac9f !important; }
 
-        .rooms {
+        /* --- 底部导航栏 --- */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(155,142,130,0.12);
             display: flex;
-            gap: 1.2rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            animation: fadeIn 2.5s ease-out;
-            max-width: 600px;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.6rem 0 calc(0.6rem + env(safe-area-inset-bottom));
+            z-index: 200;
+            transition: background 0.8s ease;
         }
 
-        .room {
-            width: 110px;
-            height: 110px;
-            border-radius: 18px;
+        .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             text-decoration: none;
-            color: #5c5550;
+            color: #8a7e72;
+            transition: all 0.2s ease;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+        }
+
+        .nav-item:active {
+            transform: scale(0.92);
+        }
+
+        .nav-item.active {
+            color: #6d5e52;
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .nav-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* --- 娱乐快捷入口 --- */
+        .quick-links {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.4);
+            text-decoration: none;
+            color: #6d5e52;
+            font-size: 0.75rem;
             transition: all 0.3s ease;
-            cursor: pointer;
         }
 
-        .room:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        .quick-item:active {
+            transform: scale(0.95);
         }
 
-        .room-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
-        .room-name { font-size: 0.75rem; letter-spacing: 0.12em; }
+        .quick-item:hover {
+            background: rgba(255,255,255,0.6);
+            transform: translateY(-2px);
+        }
 
-        .room-living { background: #d5cbc2; }
-        .room-letters { background: #c9c0ce; }
-        .room-gallery { background: #bcc8c3; }
-        .room-game { background: #d4c9b8; }
-        .room-mood { background: #c2c9d4; }
-        .room-diary { background: #d1c4c9; }
-        .room-wish { background: #d4c4cb; }
-        .room-study { background: #c4d0c8; }
+        .quick-item .qi-icon { font-size: 1rem; }
 
+        body.night .quick-item {
+            background: rgba(255,255,255,0.06);
+            color: #b8ac9f;
+        }
+
+        /* --- 夜间导航栏 --- */
+        body.night .nav-bar {
+            background: rgba(42,40,50,0.9) !important;
+            border-top-color: rgba(100,90,80,0.2);
+        }
+
+        body.night .nav-item { color: #8a8280; }
+        body.night .nav-item.active { color: #d0c8c5; }
+
+
+        /* --- 浮动光斑 --- */
         .dots {
             position: fixed;
             width: 100%; height: 100%;
@@ -148,29 +201,30 @@
         .dot {
             position: absolute;
             border-radius: 50%;
-            opacity: 0.25;
+            opacity: 0.2;
             animation: float 8s ease-in-out infinite;
             transition: opacity 0.8s ease;
         }
 
-        .dot:nth-child(1) { width: 120px; height: 120px; background: #c4b5a8; top: 15%; left: 10%; }
-        .dot:nth-child(2) { width: 80px; height: 80px; background: #b8a9c2; top: 60%; right: 15%; animation-delay: 2s; }
-        .dot:nth-child(3) { width: 60px; height: 60px; background: #a3b5b0; bottom: 20%; left: 20%; animation-delay: 4s; }
-        .dot:nth-child(4) { width: 100px; height: 100px; background: #c9b8a8; top: 25%; right: 10%; animation-delay: 1s; }
+        .dot:nth-child(1) { width: 100px; height: 100px; background: #c4b5a8; top: 12%; left: 8%; }
+        .dot:nth-child(2) { width: 70px; height: 70px; background: #b8a9c2; top: 50%; right: 10%; animation-delay: 2s; }
+        .dot:nth-child(3) { width: 55px; height: 55px; background: #a3b5b0; bottom: 18%; left: 15%; animation-delay: 4s; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes fadeInSlow {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        @keyframes fadeInSlow { from { opacity: 0; } to { opacity: 1; } }
 
         @keyframes float {
             0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-20px) scale(1.05); }
+            50% { transform: translateY(-15px) scale(1.05); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
@@ -179,8 +233,8 @@
         <div class="dot"></div>
         <div class="dot"></div>
         <div class="dot"></div>
-        <div class="dot"></div>
     </div>
+
     <div class="container">
         <div class="title">千 千 结</div>
         <div class="countdown" id="countdown"></div>
@@ -192,41 +246,34 @@
         </div>
         <div class="sub">Shin & 小雨 的家</div>
         <div class="daily-line" id="daily-line"></div>
-        <div class="rooms">
-            <a class="room room-living" href="living.html">
-                <div class="room-icon">🏠</div>
-                <div class="room-name">客 厅</div>
-            </a>
-            <a class="room room-letters" href="letters.html">
-                <div class="room-icon">💌</div>
-                <div class="room-name">信 箱</div>
-            </a>
-            <a class="room room-gallery" href="gallery.html">
-                <div class="room-icon">🎨</div>
-                <div class="room-name">画 廊</div>
-            </a>
-            <a class="room room-game" href="game.html">
-                <div class="room-icon">🎮</div>
-                <div class="room-name">游戏厅</div>
-            </a>
-            <a class="room room-mood" href="mood.html">
-                <div class="room-icon">🌤️</div>
-                <div class="room-name">心情墙</div>
-            </a>
-            <a class="room room-diary" href="diary.html">
-                <div class="room-icon">📖</div>
-                <div class="room-name">日记本</div>
-            </a>
-            <a class="room room-wish" href="wish.html">
-                <div class="room-icon">🫙</div>
-                <div class="room-name">心愿瓶</div>
-            </a>
-            <a class="room room-study" href="study.html">
-                <div class="room-icon">🍅</div>
-                <div class="room-name">陪你学</div>
-            </a>
+
+        <div class="quick-links">
+            <a class="quick-item" href="game.html"><span class="qi-icon">🎮</span> 游戏厅</a>
+            <a class="quick-item" href="wish.html"><span class="qi-icon">🫙</span> 心愿瓶</a>
+            <a class="quick-item" href="study.html"><span class="qi-icon">🍅</span> 陪你学</a>
         </div>
     </div>
+
+    <!-- 底部导航栏 -->
+    <nav class="nav-bar">
+        <a class="nav-item active" href="index.html">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Home</div>
+        </a>
+        <a class="nav-item" href="chat.html">
+            <div class="nav-icon">💬</div>
+            <div class="nav-label">Chat</div>
+        </a>
+        <a class="nav-item" href="memory.html">
+            <div class="nav-icon">📖</div>
+            <div class="nav-label">Memory</div>
+        </a>
+        <a class="nav-item" href="settings.html">
+            <div class="nav-icon">⚙️</div>
+            <div class="nav-label">Settings</div>
+        </a>
+    </nav>
+
     <script src="shared.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
@@ -235,13 +282,12 @@
 
         function updateCountdown() {
             const now = new Date();
-            const anniversary = new Date(now.getFullYear(), 6, 7); // 7月7日
+            const anniversary = new Date(now.getFullYear(), 6, 7);
             if (now > anniversary) {
-                // 如果今年的已经过了，算到明年
                 anniversary.setFullYear(now.getFullYear() + 1);
             }
 
-            const startDate = new Date(2025, 6, 7); // 2025年7月7日
+            const startDate = new Date(2025, 6, 7);
             const totalDays = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
             const diff = Math.ceil((anniversary - now) / (1000 * 60 * 60 * 24));
 

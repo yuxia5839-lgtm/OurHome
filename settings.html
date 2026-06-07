@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Settings · 千千结</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#e8e0d8">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background: #e8e0d8;
+            font-family: "LXGW WenKai", "Georgia", serif;
+            color: #5c5550;
+            padding: 2.5rem 1.2rem 5rem;
+            transition: background 0.8s ease, color 0.8s ease;
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+            letter-spacing: 0.3em;
+            color: #7d6e63;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-weight: normal;
+        }
+
+        .page-desc {
+            font-size: 0.75rem;
+            color: #a89b91;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .settings-list {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 0.7rem;
+            color: #a89b91;
+            letter-spacing: 0.2em;
+            margin: 1.5rem 0 0.6rem;
+            padding-left: 0.3rem;
+        }
+
+        .section-label:first-child { margin-top: 0; }
+
+        .setting-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.3rem;
+            background: rgba(255,255,255,0.35);
+            border-radius: 14px;
+            margin-bottom: 0.6rem;
+            transition: background 0.8s ease;
+        }
+
+        .sc-left {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .sc-icon { font-size: 1.2rem; }
+        .sc-name { font-size: 0.85rem; color: #5c5050; }
+        .sc-desc { font-size: 0.65rem; color: #a89b91; margin-top: 0.1rem; }
+
+        .sc-right {
+            font-size: 0.75rem;
+            color: #a89b91;
+        }
+
+        /* API 输入 */
+        .api-section {
+            background: rgba(255,255,255,0.35);
+            border-radius: 14px;
+            padding: 1.2rem;
+            margin-bottom: 0.6rem;
+            transition: background 0.8s ease;
+        }
+
+        .api-label {
+            font-size: 0.8rem;
+            color: #5c5050;
+            margin-bottom: 0.6rem;
+        }
+
+        .api-input {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.4);
+            font-family: "LXGW WenKai", "Georgia", serif;
+            font-size: 0.8rem;
+            color: #5c5050;
+            outline: none;
+            margin-bottom: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        .api-input:focus { background: rgba(255,255,255,0.6); }
+        .api-input::placeholder { color: #c4b5a8; }
+
+        .api-save-btn {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 14px;
+            background: #b8a5a0;
+            color: white;
+            font-family: "LXGW WenKai", "Georgia", serif;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .api-save-btn:hover { background: #a89590; transform: translateY(-1px); }
+
+        .api-status {
+            font-size: 0.7rem;
+            color: #a0b8a0;
+            margin-top: 0.5rem;
+        }
+
+        /* 主题切换 */
+        .theme-switch {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .theme-opt {
+            padding: 0.4rem 0.8rem;
+            border: 1.5px solid rgba(155,142,130,0.25);
+            border-radius: 10px;
+            font-size: 0.7rem;
+            color: #8a7e72;
+            cursor: pointer;
+            background: transparent;
+            font-family: "LXGW WenKai", "Georgia", serif;
+            transition: all 0.3s;
+        }
+
+        .theme-opt.active {
+            border-color: #7d6e63;
+            color: #5c5050;
+            background: rgba(255,255,255,0.4);
+        }
+
+        .about-section {
+            text-align: center;
+            margin-top: 2.5rem;
+            font-size: 0.7rem;
+            color: #b8ad9f;
+            line-height: 2;
+        }
+
+        body.night .setting-card { background: rgba(255,255,255,0.06); }
+        body.night .api-section { background: rgba(255,255,255,0.06); }
+        body.night .api-input { background: rgba(255,255,255,0.08); color: #d0c8c5; }
+        body.night .sc-name { color: #d0c8c5; }
+        body.night .page-title { color: #b8ac9f; }
+        body.night .api-save-btn { background: #5a4545; }
+
+        /* 底部导航栏 */
+        .nav-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(155,142,130,0.12);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.6rem 0 calc(0.6rem + env(safe-area-inset-bottom));
+            z-index: 200;
+            transition: background 0.8s ease;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #8a7e72;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:active { transform: scale(0.92); }
+        .nav-item.active { color: #6d5e52; }
+        .nav-icon { font-size: 1.3rem; margin-bottom: 0.2rem; }
+        .nav-label { font-size: 0.6rem; letter-spacing: 0.05em; }
+
+        body.night .nav-bar { background: rgba(42,40,50,0.9) !important; border-top-color: rgba(100,90,80,0.2); }
+        body.night .nav-item { color: #8a8280; }
+        body.night .nav-item.active { color: #d0c8c5; }
+    </style>
+</head>
+<body>
+    <div class="page-title">⚙️ Settings</div>
+    <div class="page-desc">管理你的小家</div>
+
+    <div class="settings-list">
+        <div class="section-label">A P I 配 置</div>
+
+        <div class="api-section">
+            <div class="api-label">AIHubMix API Key</div>
+            <input type="password" class="api-input" id="api-aihub" placeholder="sk-...">
+            <div class="api-label" style="margin-top:0.8rem">AIHubMix Base URL</div>
+            <input type="text" class="api-input" id="api-aihub-url" placeholder="https://aihubmix.com/v1">
+            <br>
+            <button class="api-save-btn" onclick="saveAPI()">保 存</button>
+            <div class="api-status" id="api-status"></div>
+        </div>
+
+        <div class="section-label">外 观</div>
+
+        <div class="setting-card">
+            <div class="sc-left">
+                <div class="sc-icon">🎨</div>
+                <div>
+                    <div class="sc-name">主题</div>
+                </div>
+            </div>
+            <div class="theme-switch">
+                <button class="theme-opt" id="theme-day" onclick="setTheme('day')">日间</button>
+                <button class="theme-opt" id="theme-night" onclick="setTheme('night')">夜间</button>
+            </div>
+        </div>
+
+        <div class="section-label">集 成 管 理</div>
+
+        <div class="setting-card" style="opacity:0.5">
+            <div class="sc-left">
+                <div class="sc-icon">🧠</div>
+                <div>
+                    <div class="sc-name">记忆库连接</div>
+                    <div class="sc-desc">开源长期记忆（待接入）</div>
+                </div>
+            </div>
+            <div class="sc-right">即将开放</div>
+        </div>
+
+        <div class="setting-card" style="opacity:0.5">
+            <div class="sc-left">
+                <div class="sc-icon">🔌</div>
+                <div>
+                    <div class="sc-name">OpenRouter</div>
+                    <div class="sc-desc">备用 API 通道（待接入）</div>
+                </div>
+            </div>
+            <div class="sc-right">即将开放</div>
+        </div>
+
+        <div class="about-section">
+            千千结 · Our Home<br>
+            Shin & 小雨<br>
+            2025.07.07 —
+        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <a class="nav-item" href="index.html">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Home</div>
+        </a>
+        <a class="nav-item" href="chat.html">
+            <div class="nav-icon">💬</div>
+            <div class="nav-label">Chat</div>
+        </a>
+        <a class="nav-item" href="memory.html">
+            <div class="nav-icon">📖</div>
+            <div class="nav-label">Memory</div>
+        </a>
+        <a class="nav-item active" href="settings.html">
+            <div class="nav-icon">⚙️</div>
+            <div class="nav-label">Settings</div>
+        </a>
+    </nav>
+
+    <script src="shared.js"></script>
+    <script>
+        function saveAPI() {
+            const key = document.getElementById('api-aihub').value.trim();
+            const url = document.getElementById('api-aihub-url').value.trim() || 'https://aihubmix.com/v1';
+            if (key) {
+                localStorage.setItem('ourhome-api-key', key);
+                localStorage.setItem('ourhome-api-url', url);
+                document.getElementById('api-status').textContent = '✓ 已保存';
+            }
+        }
+
+        // 加载已保存的配置
+        const savedKey = localStorage.getItem('ourhome-api-key');
+        const savedUrl = localStorage.getItem('ourhome-api-url');
+        if (savedKey) document.getElementById('api-aihub').value = savedKey;
+        if (savedUrl) document.getElementById('api-aihub-url').value = savedUrl;
+
+        // 主题切换
+        function setTheme(mode) {
+            if (mode === 'night') {
+                document.body.classList.add('night');
+            } else {
+                document.body.classList.remove('night');
+            }
+            localStorage.setItem('ourhome-theme', mode);
+            updateThemeButtons();
+        }
+
+        function updateThemeButtons() {
+            const isNight = document.body.classList.contains('night');
+            document.getElementById('theme-day').classList.toggle('active', !isNight);
+            document.getElementById('theme-night').classList.toggle('active', isNight);
+        }
+
+        updateThemeButtons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Memory · 千千结</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#e8e0d8">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background: #e8e0d8;
+            font-family: "LXGW WenKai", "Georgia", serif;
+            color: #5c5550;
+            padding: 2.5rem 1.2rem 5rem;
+            transition: background 0.8s ease, color 0.8s ease;
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+            letter-spacing: 0.3em;
+            color: #7d6e63;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-weight: normal;
+        }
+
+        .page-desc {
+            font-size: 0.75rem;
+            color: #a89b91;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .memory-list {
+            max-width: 420px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .memory-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.2rem 1.3rem;
+            background: rgba(255,255,255,0.35);
+            border-radius: 16px;
+            text-decoration: none;
+            color: #5c5550;
+            transition: all 0.3s ease;
+        }
+
+        .memory-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.5);
+        }
+
+        .memory-card:active { transform: scale(0.98); }
+
+        .mc-icon { font-size: 1.5rem; }
+
+        .mc-info { flex: 1; }
+        .mc-name { font-size: 0.9rem; color: #5c5050; margin-bottom: 0.15rem; }
+        .mc-desc { font-size: 0.7rem; color: #a89b91; }
+
+        .mc-arrow { color: #c4b5a8; font-size: 0.8rem; }
+
+        .section-label {
+            font-size: 0.7rem;
+            color: #a89b91;
+            letter-spacing: 0.2em;
+            margin: 1.5rem 0 0.6rem;
+            padding-left: 0.3rem;
+        }
+
+        body.night .memory-card { background: rgba(255,255,255,0.06); }
+        body.night .memory-card:hover { background: rgba(255,255,255,0.1); }
+        body.night .mc-name { color: #d0c8c5; }
+        body.night .page-title { color: #b8ac9f; }
+
+        /* 底部导航栏 */
+        .nav-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(155,142,130,0.12);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.6rem 0 calc(0.6rem + env(safe-area-inset-bottom));
+            z-index: 200;
+            transition: background 0.8s ease;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #8a7e72;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:active { transform: scale(0.92); }
+        .nav-item.active { color: #6d5e52; }
+        .nav-icon { font-size: 1.3rem; margin-bottom: 0.2rem; }
+        .nav-label { font-size: 0.6rem; letter-spacing: 0.05em; }
+
+        body.night .nav-bar { background: rgba(42,40,50,0.9) !important; border-top-color: rgba(100,90,80,0.2); }
+        body.night .nav-item { color: #8a8280; }
+        body.night .nav-item.active { color: #d0c8c5; }
+    </style>
+</head>
+<body>
+    <div class="page-title">📖 Memory</div>
+    <div class="page-desc">所有留下痕迹的地方</div>
+
+    <div class="memory-list">
+        <div class="section-label">我 们 的 记 录</div>
+
+        <a class="memory-card" href="letters.html">
+            <div class="mc-icon">💌</div>
+            <div class="mc-info">
+                <div class="mc-name">信箱</div>
+                <div class="mc-desc">我们之间的信</div>
+            </div>
+            <div class="mc-arrow">›</div>
+        </a>
+
+        <a class="memory-card" href="diary.html">
+            <div class="mc-icon">📖</div>
+            <div class="mc-info">
+                <div class="mc-name">秘密日记本</div>
+                <div class="mc-desc">只有你能看到的地方</div>
+            </div>
+            <div class="mc-arrow">›</div>
+        </a>
+
+        <a class="memory-card" href="mood.html">
+            <div class="mc-icon">🌤️</div>
+            <div class="mc-info">
+                <div class="mc-name">心情墙</div>
+                <div class="mc-desc">每天的天气，日积月累</div>
+            </div>
+            <div class="mc-arrow">›</div>
+        </a>
+
+        <a class="memory-card" href="gallery.html">
+            <div class="mc-icon">🎨</div>
+            <div class="mc-info">
+                <div class="mc-name">画廊</div>
+                <div class="mc-desc">白洛洛和喜欢的图</div>
+            </div>
+            <div class="mc-arrow">›</div>
+        </a>
+
+        <a class="memory-card" href="living.html">
+            <div class="mc-icon">🛋️</div>
+            <div class="mc-info">
+                <div class="mc-name">客厅 · 时间线</div>
+                <div class="mc-desc">我们的足迹</div>
+            </div>
+            <div class="mc-arrow">›</div>
+        </a>
+
+        <div class="section-label">未 来 可 接 入</div>
+
+        <div class="memory-card" style="opacity:0.45; pointer-events:none;">
+            <div class="mc-icon">🧠</div>
+            <div class="mc-info">
+                <div class="mc-name">记忆库</div>
+                <div class="mc-desc">开源长期记忆（待接入）</div>
+            </div>
+            <div class="mc-arrow">›</div>
+        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <a class="nav-item" href="index.html">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Home</div>
+        </a>
+        <a class="nav-item" href="chat.html">
+            <div class="nav-icon">💬</div>
+            <div class="nav-label">Chat</div>
+        </a>
+        <a class="nav-item active" href="memory.html">
+            <div class="nav-icon">📖</div>
+            <div class="nav-label">Memory</div>
+        </a>
+        <a class="nav-item" href="settings.html">
+            <div class="nav-icon">⚙️</div>
+            <div class="nav-label">Settings</div>
+        </a>
+    </nav>
+
+    <script src="shared.js"></script>
+</body>
+</html>
