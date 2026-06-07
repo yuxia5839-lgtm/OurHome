@@ -64,6 +64,8 @@ body.night .room-gallery { background: #363e3a !important; }
 body.night .room-game { background: #443e32 !important; }
 body.night .room-mood { background: #363a44 !important; }
 body.night .room-diary { background: #403840 !important; }
+body.night .room-wish { background: #443840 !important; }
+body.night .room-study { background: #384438 !important; }
 
 body.night .room-name {
     color: #ddd8d5 !important;

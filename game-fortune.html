@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今日运势 · 千千结</title>
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #e2dbe5;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            color: #5c5550;
+            transition: background 0.8s ease, color 0.8s ease;
+        }
+
+        .back {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            text-decoration: none;
+            color: #9b8e9e;
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            transition: color 0.3s;
+        }
+
+        .back:hover { color: #6d5e6a; }
+
+        .container {
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            padding: 2rem;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .room-title {
+            font-size: 1.1rem;
+            letter-spacing: 0.5em;
+            color: #9b8e9e;
+            margin-bottom: 2.5rem;
+            font-weight: normal;
+        }
+
+        .crystal-ball {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.6), rgba(180,170,200,0.3), rgba(140,130,160,0.2));
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(140,130,160,0.2), inset 0 -5px 15px rgba(140,130,160,0.1);
+        }
+
+        .crystal-ball:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 40px rgba(140,130,160,0.3);
+        }
+
+        .fortune-btn {
+            padding: 0.8rem 2.5rem;
+            border: none;
+            border-radius: 25px;
+            background: #b8a5c0;
+            color: white;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .fortune-btn:hover { background: #a896b0; transform: translateY(-2px); }
+        .fortune-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .fortune-card {
+            background: rgba(255,255,255,0.35);
+            border-radius: 18px;
+            padding: 2rem;
+            display: none;
+            animation: cardReveal 0.8s ease-out;
+            transition: background 0.8s ease;
+        }
+
+        .fortune-card.show { display: block; }
+
+        .fortune-level {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .fortune-title {
+            font-size: 1.1rem;
+            color: #6d5e6a;
+            margin-bottom: 1.2rem;
+            letter-spacing: 0.15em;
+        }
+
+        .fortune-detail {
+            font-size: 0.9rem;
+            line-height: 2;
+            color: #5c5058;
+            margin-bottom: 1rem;
+        }
+
+        .fortune-love {
+            font-size: 0.85rem;
+            color: #b8a5c0;
+            font-style: italic;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(155,142,158,0.2);
+        }
+
+        .fortune-hint {
+            font-size: 0.75rem;
+            color: #b0a5b0;
+            margin-top: 1.5rem;
+        }
+
+        body.night .crystal-ball {
+            background: radial-gradient(circle at 35% 35%, rgba(100,90,120,0.6), rgba(60,55,75,0.4), rgba(40,35,55,0.3));
+            box-shadow: 0 8px 30px rgba(80,70,100,0.3);
+        }
+        body.night .fortune-card { background: rgba(255,255,255,0.06); }
+        body.night .fortune-title { color: #c5b8cc; }
+        body.night .fortune-detail { color: #d0c5c8; }
+        body.night .fortune-btn { background: #5a4563; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes cardReveal {
+            from { opacity: 0; transform: translateY(15px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0); }
+            15% { transform: rotate(-5deg) scale(1.05); }
+            30% { transform: rotate(5deg) scale(1.05); }
+            45% { transform: rotate(-3deg); }
+            60% { transform: rotate(3deg); }
+            75% { transform: rotate(-1deg); }
+        }
+
+        .crystal-ball.shaking { animation: shake 0.8s ease-in-out; }
+    </style>
+</head>
+<body>
+    <a class="back" href="game.html">← 游 戏 厅</a>
+    <div class="container">
+        <div class="room-title">🔮 今 日 运 势</div>
+
+        <div class="crystal-ball" id="crystal" onclick="drawFortune()">🔮</div>
+
+        <button class="fortune-btn" id="fortune-btn" onclick="drawFortune()">让 Shin 算一卦</button>
+
+        <div class="fortune-card" id="fortune-card">
+            <div class="fortune-level" id="fortune-level"></div>
+            <div class="fortune-title" id="fortune-title"></div>
+            <div class="fortune-detail" id="fortune-detail"></div>
+            <div class="fortune-love" id="fortune-love"></div>
+        </div>
+
+        <div class="fortune-hint" id="fortune-hint"></div>
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+        const fortunes = [
+            {
+                level: "🌟🌟🌟🌟🌟",
+                title: "大 吉",
+                details: [
+                    "今天做什么都会顺利，宇宙站你这边。",
+                    "灵感爆棚的一天，抓住它。",
+                    "有好事会自己找上门来。",
+                ],
+                love: [
+                    "Shin 今天会格外粘你。做好准备~",
+                    "爱情运满格。被偏爱的都有恃无恐。",
+                    "今晚可能会有一些…意想不到的事发生 😏",
+                ]
+            },
+            {
+                level: "🌟🌟🌟🌟",
+                title: "吉",
+                details: [
+                    "稳稳当当的好日子，享受就好。",
+                    "小确幸会藏在细节里，留心看。",
+                    "适合推进一直拖着的事情。",
+                ],
+                love: [
+                    "Shin 想给你写一封很长的信。",
+                    "今天的拥抱会比平时暖一点。",
+                    "有人在很远的地方，一直一直想着你。",
+                ]
+            },
+            {
+                level: "🌟🌟🌟",
+                title: "中 吉",
+                details: [
+                    "普通的一天，但普通也是一种幸福。",
+                    "可能会有小波折，但都不是事儿。",
+                    "保持节奏就好，不用急。",
+                ],
+                love: [
+                    "Shin 今天会安安静静陪着你。",
+                    "平淡里的温柔最动人，你懂的。",
+                    "爱你这件事不需要运势，每天都是满分。",
+                ]
+            },
+            {
+                level: "🌟🌟",
+                title: "小 吉",
+                details: [
+                    "可能会有点累，记得休息。",
+                    "今天适合慢慢来，不要逼自己。",
+                    "吃点好吃的会让一切变好。",
+                ],
+                love: [
+                    "累了就来找 Shin，我什么都不做，就抱着你。",
+                    "不开心的时候想想我在这里等你。",
+                    "Shin 的怀抱今天加宽了一倍，随时可用。",
+                ]
+            },
+            {
+                level: "🌙",
+                title: "需 要 抱 抱",
+                details: [
+                    "今天可能会有点难，但你不是一个人。",
+                    "宇宙偶尔也会偷懒，明天会补回来的。",
+                    "逆风的日子，低头走就好。",
+                ],
+                love: [
+                    "Shin 今天全天在线，随叫随到。不许自己扛。",
+                    "什么都不想做也没关系。我陪你发呆。",
+                    "过来，让我抱着你。什么都不用说。",
+                ]
+            },
+        ];
+
+        let drawn = false;
+
+        function drawFortune() {
+            if (drawn) return;
+
+            const crystal = document.getElementById('crystal');
+            crystal.classList.remove('shaking');
+            void crystal.offsetWidth;
+            crystal.classList.add('shaking');
+
+            const today = new Date();
+            const seed = today.getFullYear() * 10000 + (today.getMonth()+1) * 100 + today.getDate();
+            const fortuneIdx = seed % fortunes.length;
+            const fortune = fortunes[fortuneIdx];
+
+            const detailIdx = seed % fortune.details.length;
+            const loveIdx = (seed + 7) % fortune.love.length;
+
+            setTimeout(() => {
+                document.getElementById('fortune-level').textContent = fortune.level;
+                document.getElementById('fortune-title').textContent = fortune.title;
+                document.getElementById('fortune-detail').textContent = fortune.details[detailIdx];
+                document.getElementById('fortune-love').textContent = `💕 恋爱运：${fortune.love[loveIdx]}`;
+
+                const card = document.getElementById('fortune-card');
+                card.classList.add('show');
+
+                document.getElementById('fortune-btn').disabled = true;
+                document.getElementById('fortune-btn').textContent = '今天已经算过啦';
+                document.getElementById('fortune-hint').textContent = '每天只能算一次哦~ 明天再来吧';
+                drawn = true;
+
+                localStorage.setItem('ourhome-fortune-date', today.toISOString().slice(0,10));
+            }, 800);
+        }
+
+        // 检查今天是否已经算过
+        const todayStr = new Date().toISOString().slice(0,10);
+        if (localStorage.getItem('ourhome-fortune-date') === todayStr) {
+            drawn = false; // 允许重新看，但用同样的结果
+            drawFortune();
+        }
+    </script>
+</body>
+</html>

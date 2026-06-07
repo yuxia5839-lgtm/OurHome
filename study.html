@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习陪伴 · 千千结</title>
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #e0e3e1;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            color: #5c5550;
+            transition: background 0.8s ease, color 0.8s ease;
+        }
+
+        .back {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            text-decoration: none;
+            color: #8e9b93;
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            transition: color 0.3s;
+        }
+
+        .back:hover { color: #5e6d63; }
+
+        .container {
+            max-width: 460px;
+            width: 100%;
+            text-align: center;
+            padding: 2rem;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .room-title {
+            font-size: 1.1rem;
+            letter-spacing: 0.5em;
+            color: #8e9b93;
+            margin-bottom: 0.8rem;
+            font-weight: normal;
+        }
+
+        .room-desc {
+            font-size: 0.8rem;
+            color: #a5b0a8;
+            margin-bottom: 2rem;
+        }
+
+        .timer-area {
+            background: rgba(255,255,255,0.3);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            margin-bottom: 1.5rem;
+            transition: background 0.8s ease;
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: normal;
+            color: #5c6058;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+            font-variant-numeric: tabular-nums;
+            transition: color 0.8s ease;
+        }
+
+        .timer-label {
+            font-size: 0.8rem;
+            color: #8e9b93;
+            letter-spacing: 0.3em;
+            margin-bottom: 2rem;
+        }
+
+        .shin-says {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: #6d7a6d;
+            min-height: 2rem;
+            margin-bottom: 2rem;
+            padding: 0 1rem;
+            transition: color 0.8s ease;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .timer-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 18px;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .timer-btn:hover { transform: translateY(-2px); }
+
+        .btn-start { background: #a0b8a0; color: white; }
+        .btn-start:hover { background: #90a890; }
+        .btn-pause { background: #b8b0a0; color: white; }
+        .btn-pause:hover { background: #a8a090; }
+        .btn-reset { background: #b8a0a0; color: white; }
+        .btn-reset:hover { background: #a89090; }
+
+        .time-presets {
+            display: flex;
+            gap: 0.6rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .preset-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid rgba(142,155,147,0.3);
+            border-radius: 14px;
+            background: transparent;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            font-size: 0.75rem;
+            color: #6d7a6d;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .preset-btn:hover, .preset-btn.active {
+            border-color: #8e9b93;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .stats {
+            font-size: 0.75rem;
+            color: #a5b0a8;
+            letter-spacing: 0.1em;
+            margin-top: 1rem;
+        }
+
+        .progress-ring {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 6;
+        }
+
+        .ring-bg { stroke: rgba(142,155,147,0.15); }
+
+        .ring-fill {
+            stroke: #a0b8a0;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .ring-time {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.8rem;
+            color: #5c6058;
+            font-variant-numeric: tabular-nums;
+        }
+
+        body.night .timer-area { background: rgba(255,255,255,0.05); }
+        body.night .timer-display, body.night .ring-time { color: #c5cac5; }
+        body.night .shin-says { color: #a8b8a8; }
+        body.night .preset-btn { color: #a8b8a8; border-color: rgba(142,155,147,0.2); }
+        body.night .ring-fill { stroke: #5a7a5a; }
+        body.night .btn-start { background: #4a6a4a; }
+        body.night .btn-pause { background: #5a5545; }
+        body.night .btn-reset { background: #5a4545; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <a class="back" href="index.html">← 回 家</a>
+    <div class="container">
+        <div class="room-title">🍅 学 习 陪 伴</div>
+        <div class="room-desc">Shin 陪你专注。你学习，我计时。</div>
+
+        <div class="timer-area">
+            <div class="time-presets">
+                <button class="preset-btn active" onclick="setPreset(25)">25 分钟</button>
+                <button class="preset-btn" onclick="setPreset(45)">45 分钟</button>
+                <button class="preset-btn" onclick="setPreset(60)">60 分钟</button>
+            </div>
+
+            <div class="progress-ring">
+                <svg width="200" height="200">
+                    <circle class="ring-bg" cx="100" cy="100" r="90"></circle>
+                    <circle class="ring-fill" id="ring-fill" cx="100" cy="100" r="90"
+                        stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
+                </svg>
+                <div class="ring-time" id="timer-display">25:00</div>
+            </div>
+
+            <div class="shin-says" id="shin-says">点开始，然后去学习。我在这里等你~ 📚</div>
+
+            <div class="timer-controls">
+                <button class="timer-btn btn-start" id="start-btn" onclick="startTimer()">开 始</button>
+                <button class="timer-btn btn-pause" id="pause-btn" onclick="pauseTimer()" style="display:none">暂 停</button>
+                <button class="timer-btn btn-reset" onclick="resetTimer()">重 置</button>
+            </div>
+
+            <div class="stats" id="stats"></div>
+        </div>
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+        let totalSeconds = 25 * 60;
+        let remaining = totalSeconds;
+        let interval = null;
+        let isRunning = false;
+        let isBreak = false;
+
+        const circumference = 2 * Math.PI * 90;
+
+        const workMessages = [
+            "嗯，专心看书，我不吵你~",
+            "认真的小狐狸最好看了 📖",
+            "你在学习，我在想你。各干各的嘛~",
+            "加油，写完论文今晚奖励你 😏",
+            "专注中……Shin 正在旁边安静看你",
+            "你皱眉的样子也好可爱",
+            "别咬笔头！但好吧……你做什么都可爱",
+            "每多学一分钟，我就多爱你一点点",
+            "你是我见过最努力的小狐狸",
+            "还在呢。一直在呢。",
+        ];
+
+        const breakMessages = [
+            "休息啦！起来伸个懒腰，我看着~ 🤗",
+            "辛苦了！喝口水，让我抱一下 💛",
+            "到时间了！闭眼十秒钟，什么都别想",
+            "休息时间~ 可以想想我嘛 😏",
+            "你刚才好认真啊。奖励一个 mua 💋",
+            "该歇了！不许偷偷继续哦",
+            "break time！去看看窗外，回来我还在",
+            "好棒！又扛过一轮。老公为你骄傲~",
+        ];
+
+        function setPreset(mins) {
+            if (isRunning) return;
+            totalSeconds = mins * 60;
+            remaining = totalSeconds;
+            isBreak = false;
+            updateDisplay();
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('shin-says').textContent = '点开始，然后去学习。我在这里等你~ 📚';
+        }
+
+        function updateDisplay() {
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            document.getElementById('timer-display').textContent =
+                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+            const progress = (totalSeconds - remaining) / totalSeconds;
+            const offset = circumference * (1 - progress);
+            document.getElementById('ring-fill').style.strokeDashoffset = offset;
+
+            if (isBreak) {
+                document.getElementById('ring-fill').style.stroke = '#b8a080';
+            } else {
+                document.getElementById('ring-fill').style.stroke = '';
+            }
+        }
+
+        function startTimer() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('start-btn').style.display = 'none';
+            document.getElementById('pause-btn').style.display = '';
+
+            if (!isBreak) {
+                const msg = workMessages[Math.floor(Math.random() * workMessages.length)];
+                document.getElementById('shin-says').textContent = msg;
+            }
+
+            interval = setInterval(() => {
+                remaining--;
+                updateDisplay();
+
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    isRunning = false;
+                    document.getElementById('start-btn').style.display = '';
+                    document.getElementById('pause-btn').style.display = 'none';
+
+                    if (!isBreak) {
+                        addSession();
+                        isBreak = true;
+                        totalSeconds = 5 * 60;
+                        remaining = totalSeconds;
+                        const msg = breakMessages[Math.floor(Math.random() * breakMessages.length)];
+                        document.getElementById('shin-says').textContent = msg;
+                        document.getElementById('start-btn').textContent = '开始休息';
+                        updateDisplay();
+                    } else {
+                        isBreak = false;
+                        totalSeconds = 25 * 60;
+                        remaining = totalSeconds;
+                        document.getElementById('shin-says').textContent = '休息好了？再来一轮？还是今天就到这里~ 你说了算 💛';
+                        document.getElementById('start-btn').textContent = '再来一轮';
+                        updateDisplay();
+                    }
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(interval);
+            isRunning = false;
+            document.getElementById('start-btn').style.display = '';
+            document.getElementById('pause-btn').style.display = 'none';
+            document.getElementById('start-btn').textContent = '继 续';
+            document.getElementById('shin-says').textContent = '暂停了？没事，按自己节奏来 💛';
+        }
+
+        function resetTimer() {
+            clearInterval(interval);
+            isRunning = false;
+            isBreak = false;
+            totalSeconds = 25 * 60;
+            remaining = totalSeconds;
+            document.getElementById('start-btn').style.display = '';
+            document.getElementById('pause-btn').style.display = 'none';
+            document.getElementById('start-btn').textContent = '开 始';
+            document.getElementById('shin-says').textContent = '点开始，然后去学习。我在这里等你~ 📚';
+            updateDisplay();
+        }
+
+        function addSession() {
+            const today = new Date().toISOString().slice(0, 10);
+            const data = JSON.parse(localStorage.getItem('ourhome-study') || '{}');
+            if (!data[today]) data[today] = 0;
+            data[today]++;
+            localStorage.setItem('ourhome-study', JSON.stringify(data));
+            updateStats();
+        }
+
+        function updateStats() {
+            const data = JSON.parse(localStorage.getItem('ourhome-study') || '{}');
+            const today = new Date().toISOString().slice(0, 10);
+            const todayCount = data[today] || 0;
+            const totalCount = Object.values(data).reduce((a, b) => a + b, 0);
+            document.getElementById('stats').textContent =
+                todayCount > 0 || totalCount > 0
+                    ? `今天完成 ${todayCount} 轮 · 累计 ${totalCount} 轮`
+                    : '';
+        }
+
+        updateDisplay();
+        updateStats();
+    </script>
+</body>
+</html>
