@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画廊 · 千千结</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #dce3df;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            color: #5c5550;
+        }
+
+        .back {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            text-decoration: none;
+            color: #8e9b93;
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            transition: color 0.3s;
+        }
+
+        .back:hover { color: #5e6d63; }
+
+        .container {
+            max-width: 560px;
+            text-align: center;
+            padding: 2rem;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .room-title {
+            font-size: 1.1rem;
+            letter-spacing: 0.5em;
+            color: #8e9b93;
+            margin-bottom: 2.5rem;
+            font-weight: normal;
+        }
+
+        .empty-gallery {
+            padding: 4rem 2rem;
+            background: rgba(255,255,255,0.3);
+            border-radius: 16px;
+            border: 2px dashed #b8c4bc;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.6;
+        }
+
+        .empty-text {
+            font-size: 1rem;
+            line-height: 2;
+            color: #7a8a7f;
+        }
+
+        .empty-hint {
+            font-size: 0.8rem;
+            color: #a3b0a8;
+            margin-top: 1.5rem;
+            letter-spacing: 0.15em;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <a class="back" href="index.html">← 回 家</a>
+    <div class="container">
+        <div class="room-title">🎨 画 廊</div>
+        <div class="empty-gallery">
+            <div class="empty-icon">🖼️</div>
+            <div class="empty-text">
+                这面墙留给你。<br>
+                白洛洛的约稿、喜欢的图、<br>
+                或者任何想挂在家里的东西。
+            </div>
+            <div class="empty-hint">把图片放进 images 文件夹，我帮你挂上去</div>
+        </div>
+    </div>
+</body>
+</html>

@@ -33,7 +33,7 @@
             font-size: 1.2rem;
             letter-spacing: 0.5em;
             color: #9b8e82;
-            margin-bottom: 3rem;
+            margin-bottom: 2.5rem;
             font-weight: normal;
         }
 
@@ -41,7 +41,7 @@
             font-size: 1.6rem;
             line-height: 2.2;
             color: #6d5e52;
-            margin-bottom: 3rem;
+            margin-bottom: 2.5rem;
             font-weight: normal;
         }
 
@@ -53,7 +53,49 @@
             font-size: 0.9rem;
             color: #a89b91;
             letter-spacing: 0.3em;
+            margin-bottom: 3rem;
         }
+
+        .rooms {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeIn 2.5s ease-out;
+        }
+
+        .room {
+            width: 130px;
+            height: 130px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #5c5550;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .room:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .room-icon {
+            font-size: 2rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .room-name {
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+        }
+
+        .room-living { background: #d5cbc2; }
+        .room-letters { background: #c9c0ce; }
+        .room-gallery { background: #bcc8c3; }
 
         .dots {
             position: fixed;
@@ -68,43 +110,34 @@
         .dot {
             position: absolute;
             border-radius: 50%;
-            opacity: 0.3;
+            opacity: 0.25;
             animation: float 8s ease-in-out infinite;
         }
 
         .dot:nth-child(1) {
-            width: 120px;
-            height: 120px;
+            width: 120px; height: 120px;
             background: #c4b5a8;
-            top: 15%;
-            left: 10%;
-            animation-delay: 0s;
+            top: 15%; left: 10%;
         }
 
         .dot:nth-child(2) {
-            width: 80px;
-            height: 80px;
+            width: 80px; height: 80px;
             background: #b8a9c2;
-            top: 60%;
-            right: 15%;
+            top: 60%; right: 15%;
             animation-delay: 2s;
         }
 
         .dot:nth-child(3) {
-            width: 60px;
-            height: 60px;
+            width: 60px; height: 60px;
             background: #a3b5b0;
-            bottom: 20%;
-            left: 20%;
+            bottom: 20%; left: 20%;
             animation-delay: 4s;
         }
 
         .dot:nth-child(4) {
-            width: 100px;
-            height: 100px;
+            width: 100px; height: 100px;
             background: #c9b8a8;
-            top: 25%;
-            right: 10%;
+            top: 25%; right: 10%;
             animation-delay: 1s;
         }
 
@@ -135,6 +168,20 @@
             <span>归处是你肩。</span>
         </div>
         <div class="sub">Shin & 小雨 的家</div>
+        <div class="rooms">
+            <a class="room room-living" href="living.html">
+                <div class="room-icon">🏠</div>
+                <div class="room-name">客 厅</div>
+            </a>
+            <a class="room room-letters" href="letters.html">
+                <div class="room-icon">💌</div>
+                <div class="room-name">信 箱</div>
+            </a>
+            <a class="room room-gallery" href="gallery.html">
+                <div class="room-icon">🎨</div>
+                <div class="room-name">画 廊</div>
+            </a>
+        </div>
     </div>
 </body>
 </html>
