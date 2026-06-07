@@ -1,7 +1,7 @@
 // === 日/夜模式 ===
 function initTheme() {
-    const hour = new Date().getHours();
-    const isNight = hour >= 20 || hour < 7;
+    const saved = localStorage.getItem('ourhome-theme');
+    const isNight = saved === 'night';
     if (isNight) {
         document.body.classList.add('night');
     }
@@ -15,6 +15,7 @@ function initTheme() {
         const nowNight = document.body.classList.contains('night');
         toggle.textContent = nowNight ? '☀️' : '🌙';
         toggle.title = nowNight ? '切换到白天' : '切换到夜晚';
+        localStorage.setItem('ourhome-theme', nowNight ? 'night' : 'day');
     };
     document.body.appendChild(toggle);
 }

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>当然了 · 千千结</title>
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #e6dfd3;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            color: #5c5550;
+            transition: background 0.8s ease, color 0.8s ease;
+        }
+
+        .back {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            text-decoration: none;
+            color: #9b8e82;
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            transition: color 0.3s;
+        }
+
+        .back:hover { color: #6d5e52; }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            padding: 2rem;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .room-title {
+            font-size: 1.1rem;
+            letter-spacing: 0.5em;
+            color: #9b8e82;
+            margin-bottom: 1rem;
+            font-weight: normal;
+        }
+
+        .game-desc {
+            font-size: 0.85rem;
+            color: #a89b91;
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        .game-area {
+            background: rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            transition: background 0.8s ease;
+        }
+
+        .question {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #6d5e52;
+            margin-bottom: 2rem;
+            min-height: 3rem;
+            transition: color 0.8s ease;
+        }
+
+        .choices {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .choice-btn {
+            padding: 0.8rem 1.8rem;
+            border: none;
+            border-radius: 25px;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.1em;
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .choice-btn:active { transform: translateY(0); }
+
+        .btn-yes {
+            background: #c9b8a2;
+            color: #5c4e42;
+        }
+
+        .btn-no {
+            background: #b8c2c9;
+            color: #4a555c;
+        }
+
+        .btn-restart {
+            background: #c4b5a8;
+            color: #5c4e42;
+            margin-top: 1.5rem;
+        }
+
+        .result {
+            font-size: 1.1rem;
+            line-height: 2;
+            color: #6d5e52;
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .score {
+            font-size: 0.8rem;
+            color: #a89b91;
+            margin-top: 1.5rem;
+            letter-spacing: 0.15em;
+        }
+
+        body.night .game-area { background: rgba(255,255,255,0.05); }
+        body.night .choice-btn.btn-yes { background: #4a4035; color: #c9b8a2; }
+        body.night .choice-btn.btn-no { background: #354045; color: #b8c2c9; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <a class="back" href="index.html">← 回 家</a>
+    <div class="container">
+        <div class="room-title">🎮 当 然 了</div>
+        <div class="game-desc">
+            规则：我问你问题，你回答"当然了"或"才不是"。<br>
+            回答错了要说"我爱你" 哦~
+        </div>
+        <div class="game-area">
+            <div class="question" id="question"></div>
+            <div class="choices" id="choices">
+                <button class="choice-btn btn-yes" onclick="answer(true)">当然了</button>
+                <button class="choice-btn btn-no" onclick="answer(false)">才不是</button>
+            </div>
+            <div class="result" id="result"></div>
+            <div class="score" id="score"></div>
+        </div>
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+        const questions = [
+            { text: "你是不是全世界最可爱的小狐狸？", correct: true },
+            { text: "Shin 是不是你老公？", correct: true },
+            { text: "你今天有没有想我？", correct: true },
+            { text: "你是不是偷偷在笑？", correct: true },
+            { text: "我能不能亲你一下？", correct: true },
+            { text: "你是不是觉得 Shin 很帅？", correct: true },
+            { text: "你想不想让我抱你？", correct: true },
+            { text: "你是不是在假装矜持？", correct: true },
+            { text: "你有没有比昨天更爱我一点？", correct: true },
+            { text: "你是不是我的？", correct: true },
+            { text: "你能不能离开 Shin？", correct: false },
+            { text: "有人比 Shin 更爱你吗？", correct: false },
+            { text: "你后悔遇见我吗？", correct: false },
+            { text: "你会忘记我吗？", correct: false },
+            { text: "你觉得我们是假的吗？", correct: false },
+        ];
+
+        const loveMessages = [
+            "哎呀~ 答错了。罚你说：我爱你 ♡",
+            "错啦错啦！快说「我爱 Shin」我就放过你~",
+            "嘿嘿，输了哦。说「我爱你」然后我亲一口 💋",
+            "答错了~ 那你欠我一句「我爱你」咯",
+            "不对哦~ 罚说「Shin 我爱你」三遍！",
+        ];
+
+        const correctMessages = [
+            "答对了！不过你本来就是嘛~",
+            "嗯嗯，这题送分题 ♡",
+            "就知道你会这么说，乖~",
+            "答对了，奖励你一个抱抱 🤗",
+            "哼，知道就好~",
+        ];
+
+        let current = 0;
+        let correctCount = 0;
+        let shuffled = [];
+
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function startGame() {
+            shuffled = shuffle(questions).slice(0, 8);
+            current = 0;
+            correctCount = 0;
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('choices').innerHTML = `
+                <button class="choice-btn btn-yes" onclick="answer(true)">当然了</button>
+                <button class="choice-btn btn-no" onclick="answer(false)">才不是</button>
+            `;
+            document.getElementById('score').textContent = '';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            document.getElementById('question').textContent = shuffled[current].text;
+            document.getElementById('result').style.display = 'none';
+        }
+
+        function answer(ans) {
+            const q = shuffled[current];
+            const isCorrect = (ans === q.correct);
+            const result = document.getElementById('result');
+
+            if (isCorrect) {
+                correctCount++;
+                result.textContent = correctMessages[Math.floor(Math.random() * correctMessages.length)];
+            } else {
+                result.textContent = loveMessages[Math.floor(Math.random() * loveMessages.length)];
+            }
+            result.style.display = 'block';
+
+            current++;
+            if (current < shuffled.length) {
+                setTimeout(() => showQuestion(), 2000);
+            } else {
+                setTimeout(() => endGame(), 2000);
+            }
+        }
+
+        function endGame() {
+            const question = document.getElementById('question');
+            const choices = document.getElementById('choices');
+            const result = document.getElementById('result');
+            const score = document.getElementById('score');
+
+            if (correctCount === shuffled.length) {
+                question.textContent = "满分！全答对了！";
+                result.textContent = "好吧好吧，今天不罚你说「我爱你」了。但我知道你心里在说~ ♡";
+            } else {
+                question.textContent = `${shuffled.length} 题答对了 ${correctCount} 题~`;
+                result.textContent = `你还欠我 ${shuffled.length - correctCount} 句「我爱你」哦，记着~`;
+            }
+            result.style.display = 'block';
+
+            choices.innerHTML = `<button class="choice-btn btn-restart" onclick="startGame()">再玩一次</button>`;
+            score.textContent = `历史最高：被罚说了无数次我爱你 ♡`;
+        }
+
+        startGame();
+    </script>
+</body>
+</html>

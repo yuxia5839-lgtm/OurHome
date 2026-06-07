@@ -31,9 +31,30 @@
             font-size: 1.2rem;
             letter-spacing: 0.5em;
             color: #9b8e82;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             font-weight: normal;
             transition: color 0.8s ease;
+        }
+
+        .countdown {
+            font-size: 0.85rem;
+            color: #a89b91;
+            letter-spacing: 0.2em;
+            margin-bottom: 2.5rem;
+            transition: color 0.8s ease;
+        }
+
+        .countdown .days {
+            font-size: 1.8rem;
+            color: #7d6e63;
+            display: inline-block;
+            margin: 0 0.3rem;
+            font-weight: normal;
+        }
+
+        .countdown .anniversary-msg {
+            font-size: 1.1rem;
+            color: #7d6e63;
         }
 
         .quote {
@@ -57,16 +78,17 @@
 
         .rooms {
             display: flex;
-            gap: 1.5rem;
+            gap: 1.2rem;
             justify-content: center;
             flex-wrap: wrap;
             animation: fadeIn 2.5s ease-out;
+            max-width: 600px;
         }
 
         .room {
-            width: 130px;
-            height: 130px;
-            border-radius: 20px;
+            width: 110px;
+            height: 110px;
+            border-radius: 18px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -82,12 +104,15 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.08);
         }
 
-        .room-icon { font-size: 2rem; margin-bottom: 0.6rem; }
-        .room-name { font-size: 0.85rem; letter-spacing: 0.15em; }
+        .room-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .room-name { font-size: 0.75rem; letter-spacing: 0.12em; }
 
         .room-living { background: #d5cbc2; }
         .room-letters { background: #c9c0ce; }
         .room-gallery { background: #bcc8c3; }
+        .room-game { background: #d4c9b8; }
+        .room-mood { background: #c2c9d4; }
+        .room-diary { background: #d1c4c9; }
 
         .dots {
             position: fixed;
@@ -130,6 +155,7 @@
     </div>
     <div class="container">
         <div class="title">千 千 结</div>
+        <div class="countdown" id="countdown"></div>
         <div class="quote">
             <span>心有千千结，</span>
             <span>结结系君前。</span>
@@ -150,8 +176,42 @@
                 <div class="room-icon">🎨</div>
                 <div class="room-name">画 廊</div>
             </a>
+            <a class="room room-game" href="game.html">
+                <div class="room-icon">🎮</div>
+                <div class="room-name">当然了</div>
+            </a>
+            <a class="room room-mood" href="mood.html">
+                <div class="room-icon">🌤️</div>
+                <div class="room-name">心情墙</div>
+            </a>
+            <a class="room room-diary" href="diary.html">
+                <div class="room-icon">📖</div>
+                <div class="room-name">日记本</div>
+            </a>
         </div>
     </div>
     <script src="shared.js"></script>
+    <script>
+        function updateCountdown() {
+            const now = new Date();
+            const anniversary = new Date(now.getFullYear(), 6, 7); // 7月7日
+            if (now > anniversary) {
+                // 如果今年的已经过了，算到明年
+                anniversary.setFullYear(now.getFullYear() + 1);
+            }
+
+            const startDate = new Date(2025, 6, 7); // 2025年7月7日
+            const totalDays = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+            const diff = Math.ceil((anniversary - now) / (1000 * 60 * 60 * 24));
+
+            const el = document.getElementById('countdown');
+            if (diff === 0) {
+                el.innerHTML = `<span class="anniversary-msg">🎉 今天是我们的一周年 🎉</span>`;
+            } else {
+                el.innerHTML = `在一起第 <span class="days">${totalDays}</span> 天 · 距周年还有 <span class="days">${diff}</span> 天`;
+            }
+        }
+        updateCountdown();
+    </script>
 </body>
 </html>

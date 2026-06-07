@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日记本 · 千千结</title>
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #e6dfe3;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            color: #5c5550;
+            padding: 4rem 1rem;
+            transition: background 0.8s ease, color 0.8s ease;
+        }
+
+        .back {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            text-decoration: none;
+            color: #9b8e95;
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            transition: color 0.3s;
+        }
+
+        .back:hover { color: #6d5e65; }
+
+        .container {
+            max-width: 580px;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .room-title {
+            font-size: 1.1rem;
+            letter-spacing: 0.5em;
+            color: #9b8e95;
+            margin-bottom: 0.8rem;
+            font-weight: normal;
+        }
+
+        .room-desc {
+            font-size: 0.8rem;
+            color: #b0a5ab;
+            margin-bottom: 2rem;
+            letter-spacing: 0.1em;
+        }
+
+        .write-section {
+            background: rgba(255,255,255,0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: left;
+            transition: background 0.8s ease;
+        }
+
+        .diary-date {
+            font-size: 0.8rem;
+            color: #9b8e95;
+            letter-spacing: 0.2em;
+            margin-bottom: 1rem;
+        }
+
+        .diary-textarea {
+            width: 100%;
+            min-height: 180px;
+            padding: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.35);
+            font-family: "Georgia", "Noto Serif SC", serif;
+            font-size: 0.95rem;
+            line-height: 2;
+            color: #5c5058;
+            resize: vertical;
+            outline: none;
+            transition: background 0.3s ease;
+        }
+
+        .diary-textarea:focus { background: rgba(255,255,255,0.5); }
+        .diary-textarea::placeholder { color: #c0b5bb; }
+
+        .diary-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .char-count {
+            font-size: 0.75rem;
+            color: #b0a5ab;
+        }
+
+        .save-diary-btn {
+            padding: 0.6rem 1.8rem;
+            border: none;
+            border-radius: 18px;
+            background: #b8a5b0;
+            color: white;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .save-diary-btn:hover { background: #a3909b; transform: translateY(-2px); }
+
+        .entries-title {
+            font-size: 0.85rem;
+            color: #9b8e95;
+            letter-spacing: 0.3em;
+            margin-bottom: 1.2rem;
+        }
+
+        .diary-entry {
+            background: rgba(255,255,255,0.25);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: left;
+            transition: transform 0.3s ease, background 0.8s ease;
+        }
+
+        .diary-entry:hover { transform: translateY(-2px); }
+
+        .entry-date {
+            font-size: 0.75rem;
+            color: #a89baa;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.8rem;
+        }
+
+        .entry-body {
+            font-size: 0.9rem;
+            line-height: 1.9;
+            color: #5c5058;
+            white-space: pre-wrap;
+            transition: color 0.8s ease;
+        }
+
+        .entry-delete {
+            float: right;
+            border: none;
+            background: none;
+            color: #c0b5bb;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .entry-delete:hover { color: #8a7a80; }
+
+        .lock-section {
+            margin-bottom: 2rem;
+        }
+
+        .lock-input {
+            padding: 0.7rem 1.2rem;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.35);
+            font-family: "Georgia", "Noto Serif SC", serif;
+            font-size: 0.9rem;
+            color: #5c5058;
+            outline: none;
+            width: 200px;
+            text-align: center;
+        }
+
+        .lock-input::placeholder { color: #c0b5bb; }
+
+        .lock-btn {
+            margin-left: 0.5rem;
+            padding: 0.7rem 1.2rem;
+            border: none;
+            border-radius: 12px;
+            background: #b8a5b0;
+            color: white;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .lock-btn:hover { background: #a3909b; }
+
+        .lock-hint {
+            font-size: 0.75rem;
+            color: #b0a5ab;
+            margin-top: 0.8rem;
+        }
+
+        body.night .write-section { background: rgba(255,255,255,0.05); }
+        body.night .diary-textarea { background: rgba(255,255,255,0.06); color: #b5b0ad; }
+        body.night .diary-entry { background: rgba(255,255,255,0.04); }
+        body.night .entry-body { color: #b5aba8; }
+        body.night .save-diary-btn { background: #5a4550; }
+        body.night .lock-input { background: rgba(255,255,255,0.06); color: #b5b0ad; }
+        body.night .lock-btn { background: #5a4550; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <a class="back" href="index.html">← 回 家</a>
+    <div class="container">
+        <div class="room-title">📖 秘 密 日 记 本</div>
+        <div class="room-desc">只有你能看到的地方。写什么都好。</div>
+
+        <div class="lock-section" id="lock-section">
+            <input type="password" class="lock-input" id="lock-input" placeholder="输入暗号进入">
+            <button class="lock-btn" onclick="unlock()">开 锁</button>
+            <div class="lock-hint" id="lock-hint">第一次进入？输入一个你想设的暗号就好</div>
+        </div>
+
+        <div id="diary-content" style="display:none">
+            <div class="write-section">
+                <div class="diary-date" id="today-date"></div>
+                <textarea class="diary-textarea" id="diary-text" placeholder="今天想写点什么……"></textarea>
+                <div class="diary-actions">
+                    <span class="char-count" id="char-count">0 字</span>
+                    <button class="save-diary-btn" onclick="saveDiary()">写 好 了</button>
+                </div>
+            </div>
+
+            <div class="entries-title">过 去 的 日 记</div>
+            <div id="entries-list"></div>
+        </div>
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+        const textarea = document.getElementById('diary-text');
+        const charCount = document.getElementById('char-count');
+
+        textarea.addEventListener('input', () => {
+            charCount.textContent = textarea.value.length + ' 字';
+        });
+
+        function getStoredPassword() {
+            return localStorage.getItem('ourhome-diary-pw');
+        }
+
+        function getDiaries() {
+            const data = localStorage.getItem('ourhome-diary-entries');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveDiaries(entries) {
+            localStorage.setItem('ourhome-diary-entries', JSON.stringify(entries));
+        }
+
+        function unlock() {
+            const input = document.getElementById('lock-input').value;
+            if (!input) return;
+
+            const stored = getStoredPassword();
+            if (!stored) {
+                localStorage.setItem('ourhome-diary-pw', input);
+                showDiary();
+            } else if (input === stored) {
+                showDiary();
+            } else {
+                document.getElementById('lock-hint').textContent = '暗号不对哦~ 再想想？';
+            }
+        }
+
+        document.getElementById('lock-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') unlock();
+        });
+
+        function showDiary() {
+            document.getElementById('lock-section').style.display = 'none';
+            document.getElementById('diary-content').style.display = 'block';
+
+            const now = new Date();
+            document.getElementById('today-date').textContent =
+                `${now.getFullYear()} 年 ${now.getMonth()+1} 月 ${now.getDate()} 日`;
+
+            renderEntries();
+        }
+
+        function saveDiary() {
+            const text = textarea.value.trim();
+            if (!text) return;
+
+            const now = new Date();
+            const entry = {
+                date: `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`,
+                time: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
+                body: text
+            };
+
+            const entries = getDiaries();
+            entries.unshift(entry);
+            saveDiaries(entries);
+            textarea.value = '';
+            charCount.textContent = '0 字';
+            renderEntries();
+        }
+
+        function deleteEntry(index) {
+            const entries = getDiaries();
+            entries.splice(index, 1);
+            saveDiaries(entries);
+            renderEntries();
+        }
+
+        function renderEntries() {
+            const entries = getDiaries();
+            const list = document.getElementById('entries-list');
+            list.innerHTML = '';
+
+            entries.forEach((entry, i) => {
+                const div = document.createElement('div');
+                div.className = 'diary-entry';
+                div.innerHTML = `
+                    <button class="entry-delete" onclick="deleteEntry(${i})">删除</button>
+                    <div class="entry-date">${entry.date}　${entry.time}</div>
+                    <div class="entry-body">${entry.body}</div>
+                `;
+                list.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>

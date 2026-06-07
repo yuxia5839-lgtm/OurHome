@@ -29,57 +29,92 @@
 
 /* === 夜间模式 === */
 body.night {
-    background: #2c2a2e !important;
-    color: #c8c2c0 !important;
+    background: #2a2832 !important;
+    color: #ddd8d5 !important;
 }
 
 body.night .title,
 body.night .room-title {
-    color: #8a7f76 !important;
+    color: #b8ac9f !important;
 }
 
 body.night .quote {
-    color: #b5aba3 !important;
+    color: #d5cbc3 !important;
 }
 
 body.night .sub {
-    color: #6e655e !important;
+    color: #8a817a !important;
+}
+
+body.night .countdown {
+    color: #a89b91 !important;
+}
+
+body.night .countdown .days {
+    color: #d5cbc3 !important;
 }
 
 body.night .room {
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
-body.night .room-living { background: #3d3832 !important; }
-body.night .room-letters { background: #383340 !important; }
-body.night .room-gallery { background: #303835 !important; }
+body.night .room-living { background: #443d36 !important; }
+body.night .room-letters { background: #3e3848 !important; }
+body.night .room-gallery { background: #363e3a !important; }
+body.night .room-game { background: #443e32 !important; }
+body.night .room-mood { background: #363a44 !important; }
+body.night .room-diary { background: #403840 !important; }
 
 body.night .room-name {
-    color: #c8c2c0 !important;
+    color: #ddd8d5 !important;
 }
 
 body.night .back {
-    color: #7a7278 !important;
+    color: #a89aa2 !important;
+}
+
+body.night .back:hover {
+    color: #d0c5cc !important;
 }
 
 body.night .letter {
-    background: rgba(255,255,255,0.06) !important;
+    background: rgba(255,255,255,0.08) !important;
+}
+
+body.night .letter-from {
+    color: #b8adc0 !important;
 }
 
 body.night .letter-body {
-    color: #b5aba8 !important;
+    color: #d0c5c2 !important;
+}
+
+body.night .letter-date {
+    color: #8a8090 !important;
 }
 
 body.night .timeline {
-    background: rgba(255,255,255,0.05) !important;
+    background: rgba(255,255,255,0.06) !important;
+}
+
+body.night .timeline-title {
+    color: #a89b91 !important;
+}
+
+body.night .event-date {
+    color: #8a817a !important;
 }
 
 body.night .event-text {
-    color: #b5aba3 !important;
+    color: #d0c5bd !important;
+}
+
+body.night .welcome {
+    color: #d0c5bd !important;
 }
 
 body.night .dot {
-    opacity: 0.1 !important;
+    opacity: 0.08 !important;
 }
 
 body.night .empty-gallery {
@@ -88,15 +123,41 @@ body.night .empty-gallery {
 }
 
 body.night .empty-text {
-    color: #8a9a8f !important;
+    color: #a0b0a5 !important;
 }
 
 body.night .theme-toggle,
 body.night .music-toggle {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.1);
 }
 
 body.night .theme-toggle:hover,
 body.night .music-toggle:hover {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.18);
+}
+
+body.night .question {
+    color: #d0c5bd !important;
+}
+
+body.night .game-desc {
+    color: #a89b91 !important;
+}
+
+body.night .room-desc {
+    color: #a89ba5 !important;
+}
+
+body.night .today-label,
+body.night .entries-title,
+body.night .write-title {
+    color: #a89ba5 !important;
+}
+
+body.night .hint {
+    color: #8a8090 !important;
+}
+
+body.night .diary-date {
+    color: #a89ba5 !important;
 }

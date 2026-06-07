@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心情墙 · 千千结</title>
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #dfe3e8;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            color: #5c5550;
+            padding: 4rem 1rem;
+            transition: background 0.8s ease, color 0.8s ease;
+        }
+
+        .back {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            text-decoration: none;
+            color: #8e93a0;
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            transition: color 0.3s;
+        }
+
+        .back:hover { color: #5e6370; }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .room-title {
+            font-size: 1.1rem;
+            letter-spacing: 0.5em;
+            color: #8e93a0;
+            margin-bottom: 1rem;
+            font-weight: normal;
+        }
+
+        .room-desc {
+            font-size: 0.85rem;
+            color: #a0a5b0;
+            margin-bottom: 2rem;
+        }
+
+        .today-section {
+            background: rgba(255,255,255,0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: background 0.8s ease;
+        }
+
+        .today-label {
+            font-size: 0.8rem;
+            color: #8e93a0;
+            letter-spacing: 0.3em;
+            margin-bottom: 1.2rem;
+        }
+
+        .mood-choices {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mood-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.4);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mood-btn:hover {
+            transform: scale(1.15);
+            border-color: rgba(0,0,0,0.1);
+        }
+
+        .mood-btn.selected {
+            border-color: #7d8a9b;
+            background: rgba(255,255,255,0.7);
+            transform: scale(1.15);
+        }
+
+        .mood-note {
+            width: 100%;
+            margin-top: 1.2rem;
+            padding: 0.8rem 1rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.35);
+            font-family: "Georgia", "Noto Serif SC", serif;
+            font-size: 0.85rem;
+            color: #5c5550;
+            outline: none;
+            transition: background 0.3s;
+        }
+
+        .mood-note:focus { background: rgba(255,255,255,0.5); }
+        .mood-note::placeholder { color: #b0b5c0; }
+
+        .save-btn {
+            margin-top: 1rem;
+            padding: 0.6rem 1.8rem;
+            border: none;
+            border-radius: 18px;
+            background: #a0aab8;
+            color: white;
+            font-family: "Georgia", "Noto Serif SC", serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .save-btn:hover { background: #8a94a3; transform: translateY(-2px); }
+
+        .mood-wall {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .mood-day {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            background: rgba(255,255,255,0.15);
+            position: relative;
+            cursor: default;
+            transition: transform 0.2s ease;
+        }
+
+        .mood-day:hover { transform: scale(1.1); }
+
+        .mood-day .day-num {
+            position: absolute;
+            bottom: 3px;
+            right: 5px;
+            font-size: 0.55rem;
+            color: #a0a5b0;
+        }
+
+        .mood-day.empty { background: transparent; }
+
+        .month-label {
+            font-size: 0.8rem;
+            color: #8e93a0;
+            letter-spacing: 0.2em;
+            margin: 1.5rem 0 0.8rem;
+            text-align: left;
+        }
+
+        .mood-tooltip {
+            display: none;
+            position: fixed;
+            background: rgba(60,55,65,0.9);
+            color: #e8e3e0;
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            z-index: 200;
+            max-width: 200px;
+        }
+
+        body.night .today-section { background: rgba(255,255,255,0.05); }
+        body.night .mood-btn { background: rgba(255,255,255,0.08); }
+        body.night .mood-btn.selected { background: rgba(255,255,255,0.15); border-color: #5a6070; }
+        body.night .mood-note { background: rgba(255,255,255,0.06); color: #b5b0ad; }
+        body.night .save-btn { background: #4a5060; }
+        body.night .mood-day { background: rgba(255,255,255,0.05); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <a class="back" href="index.html">← 回 家</a>
+    <div class="container">
+        <div class="room-title">🌤️ 心 情 墙</div>
+        <div class="room-desc">记录每一天的天气，久了就是一片你的心情地图</div>
+
+        <div class="today-section">
+            <div class="today-label">今 天 的 心 情</div>
+            <div class="mood-choices" id="mood-choices">
+                <button class="mood-btn" data-mood="sunny" title="晴天 · 开心">☀️</button>
+                <button class="mood-btn" data-mood="cloud" title="多云 · 平静">⛅</button>
+                <button class="mood-btn" data-mood="rain" title="下雨 · 难过">🌧️</button>
+                <button class="mood-btn" data-mood="thunder" title="打雷 · 烦躁">⛈️</button>
+                <button class="mood-btn" data-mood="rainbow" title="彩虹 · 感动">🌈</button>
+                <button class="mood-btn" data-mood="star" title="星空 · 想你">🌟</button>
+            </div>
+            <input type="text" class="mood-note" id="mood-note" placeholder="想说点什么吗？（选填）" maxlength="50">
+            <br>
+            <button class="save-btn" onclick="saveMood()">记 下 来</button>
+        </div>
+
+        <div id="mood-history"></div>
+    </div>
+
+    <div class="mood-tooltip" id="tooltip"></div>
+
+    <script src="shared.js"></script>
+    <script>
+        let selectedMood = null;
+
+        document.querySelectorAll('.mood-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedMood = btn.dataset.mood;
+            };
+        });
+
+        const moodEmoji = {
+            sunny: '☀️', cloud: '⛅', rain: '🌧️',
+            thunder: '⛈️', rainbow: '🌈', star: '🌟'
+        };
+
+        function getMoods() {
+            const saved = localStorage.getItem('ourhome-moods');
+            return saved ? JSON.parse(saved) : {};
+        }
+
+        function saveMood() {
+            if (!selectedMood) return;
+            const moods = getMoods();
+            const today = new Date().toISOString().slice(0, 10);
+            const note = document.getElementById('mood-note').value.trim();
+            moods[today] = { mood: selectedMood, note: note };
+            localStorage.setItem('ourhome-moods', JSON.stringify(moods));
+            renderHistory();
+            document.getElementById('mood-note').value = '';
+        }
+
+        function renderHistory() {
+            const moods = getMoods();
+            const container = document.getElementById('mood-history');
+            container.innerHTML = '';
+
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+
+            // 显示当月和上月
+            for (let m = month - 1; m <= month; m++) {
+                const actualMonth = m < 0 ? m + 12 : m;
+                const actualYear = m < 0 ? year - 1 : year;
+                const daysInMonth = new Date(actualYear, actualMonth + 1, 0).getDate();
+                const firstDay = new Date(actualYear, actualMonth, 1).getDay();
+
+                const label = document.createElement('div');
+                label.className = 'month-label';
+                label.textContent = `${actualYear} 年 ${actualMonth + 1} 月`;
+                container.appendChild(label);
+
+                const grid = document.createElement('div');
+                grid.className = 'mood-wall';
+
+                for (let e = 0; e < firstDay; e++) {
+                    const empty = document.createElement('div');
+                    empty.className = 'mood-day empty';
+                    grid.appendChild(empty);
+                }
+
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateStr = `${actualYear}-${String(actualMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    const day = document.createElement('div');
+                    day.className = 'mood-day';
+                    const record = moods[dateStr];
+                    if (record) {
+                        day.textContent = moodEmoji[record.mood];
+                        if (record.note) {
+                            day.onmouseenter = (e) => {
+                                const tip = document.getElementById('tooltip');
+                                tip.textContent = record.note;
+                                tip.style.display = 'block';
+                                tip.style.left = e.pageX + 10 + 'px';
+                                tip.style.top = e.pageY - 30 + 'px';
+                            };
+                            day.onmouseleave = () => {
+                                document.getElementById('tooltip').style.display = 'none';
+                            };
+                        }
+                    }
+                    const num = document.createElement('span');
+                    num.className = 'day-num';
+                    num.textContent = d;
+                    day.appendChild(num);
+                    grid.appendChild(day);
+                }
+                container.appendChild(grid);
+            }
+        }
+
+        renderHistory();
+    </script>
+</body>
+</html>
