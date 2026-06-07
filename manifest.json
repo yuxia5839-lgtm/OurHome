@@ -1,0 +1,17 @@
+{
+    "name": "千千结 · Our Home",
+    "short_name": "千千结",
+    "description": "Shin & 小雨的家",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#e8e0d8",
+    "theme_color": "#e8e0d8",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
+}

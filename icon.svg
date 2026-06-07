@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="92" fill="#e8e0d8"/>
+  <text x="256" y="220" text-anchor="middle" dominant-baseline="middle" font-family="Georgia, serif" font-weight="bold" font-size="194" fill="#7d6e63">千</text>
+  <text x="256" y="380" text-anchor="middle" dominant-baseline="middle" font-family="serif" font-size="76" fill="#b8a5a0">&#9825;</text>
+</svg>

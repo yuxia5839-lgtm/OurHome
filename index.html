@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>千千结 · Our Home</title>
     <link rel="stylesheet" href="shared.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#e8e0d8">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="千千结">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -223,6 +229,10 @@
     </div>
     <script src="shared.js"></script>
     <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+
         function updateCountdown() {
             const now = new Date();
             const anniversary = new Date(now.getFullYear(), 6, 7); // 7月7日
