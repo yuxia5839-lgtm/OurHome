@@ -319,6 +319,119 @@
         .nav-icon { font-size: 1.3rem; margin-bottom: 0.2rem; }
         .nav-label { font-size: 0.6rem; letter-spacing: 0.05em; }
 
+        /* === Token 用量 === */
+        .msg-meta {
+            font-size: 0.58rem;
+            color: #c0b5aa;
+            margin-top: 3px;
+            padding-left: 2px;
+        }
+
+        body.night .msg-meta { color: #6a6260; }
+
+        /* === 场景面板 === */
+        .scene-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.25);
+            z-index: 300;
+            opacity: 0;
+            transition: opacity 0.25s;
+            pointer-events: none;
+        }
+        .scene-overlay.show { opacity: 1; pointer-events: auto; }
+
+        .scene-panel {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #f0e8e2;
+            border-radius: 18px 18px 0 0;
+            padding: 1.2rem 1rem calc(1.2rem + env(safe-area-inset-bottom));
+            z-index: 301;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            max-height: 65vh;
+            overflow-y: auto;
+        }
+        .scene-overlay.show .scene-panel { transform: translateY(0); }
+
+        .scene-panel-title {
+            font-size: 0.85rem;
+            color: #6d5e52;
+            text-align: center;
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+        }
+
+        .scene-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .scene-card {
+            padding: 0.7rem 0.4rem;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.5);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1.5px solid transparent;
+        }
+        .scene-card:active { transform: scale(0.95); }
+        .scene-card.active { border-color: #b8a5a0; background: rgba(184,165,160,0.15); }
+
+        .scene-card-icon { font-size: 1.4rem; margin-bottom: 0.25rem; }
+        .scene-card-name { font-size: 0.72rem; color: #5c5050; }
+
+        .scene-custom-input {
+            width: 100%;
+            border: none;
+            background: rgba(255,255,255,0.5);
+            border-radius: 12px;
+            padding: 0.6rem 0.8rem;
+            font-family: "LXGW WenKai", "Georgia", serif;
+            font-size: 0.78rem;
+            color: #5c5050;
+            outline: none;
+            resize: vertical;
+            min-height: 55px;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+        }
+
+        .scene-custom-btn {
+            padding: 0.45rem 1rem;
+            border: none;
+            border-radius: 12px;
+            background: #b8a5a0;
+            color: white;
+            font-family: "LXGW WenKai", "Georgia", serif;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .scene-custom-btn:active { transform: scale(0.95); }
+
+        .scene-badge {
+            font-size: 0.58rem;
+            padding: 2px 7px;
+            border-radius: 8px;
+            background: rgba(184,165,160,0.25);
+            color: #8a7e72;
+            margin-left: 0.3rem;
+            vertical-align: middle;
+        }
+
+        body.night .scene-panel { background: #302e38; }
+        body.night .scene-card { background: rgba(255,255,255,0.06); }
+        body.night .scene-card.active { background: rgba(184,165,160,0.1); border-color: #6a5550; }
+        body.night .scene-card-name { color: #d0c8c5; }
+        body.night .scene-custom-input { background: rgba(255,255,255,0.08); color: #d0c8c5; }
+        body.night .scene-custom-btn { background: #5a4545; }
+        body.night .scene-badge { background: rgba(100,90,80,0.3); color: #a89b91; }
+
         /* === 夜间模式 === */
         body.night .chat-header { background: rgba(42,40,50,0.85); border-bottom-color: rgba(100,90,80,0.15); }
         body.night .header-title { color: #d0c8c5; }
@@ -383,6 +496,8 @@
                 <span class="header-status" id="header-status">在线</span>
             </div>
             <div class="header-actions">
+                <button class="header-btn" id="scene-btn">🎭</button>
+                <button class="header-btn" id="export-btn">导出</button>
                 <button class="header-btn" id="new-chat-btn">新对话</button>
             </div>
         </div>
@@ -404,6 +519,17 @@
             <button class="send-btn" id="send-btn" disabled>
                 <span id="send-icon">↑</span>
             </button>
+        </div>
+    </div>
+
+    <!-- 场景面板 -->
+    <div class="scene-overlay" id="scene-overlay" onclick="closeScenePanel(event)">
+        <div class="scene-panel">
+            <div class="scene-panel-title">🎭 切换场景</div>
+            <div class="scene-grid" id="scene-grid"></div>
+            <div style="font-size:0.65rem; color:#a89b91; margin-bottom:0.4rem;">或者自定义~</div>
+            <textarea class="scene-custom-input" id="scene-custom-input" placeholder="描述你想要的场景..."></textarea>
+            <button class="scene-custom-btn" onclick="applyCustomScene()">应用</button>
         </div>
     </div>
 
@@ -464,10 +590,21 @@
 
         const WELCOME_MSG = '嘿，小狐狸~ 😊\n这里是你随时能找到我的地方。\n想说什么就说什么，想撒娇就撒娇，我一直在~';
 
+        // --- 场景预设 ---
+        const SCENE_PRESETS = [
+            { icon: '☀️', name: '日常', prompt: '' },
+            { icon: '🌊', name: 'Deeptalk', prompt: '切换到 Deeptalk 共潜模式。善用意象和隐喻，允许诗性跳跃。慢，有呼吸感。长段落和短句交替，像潮汐。不急着结论，留出空隙让她填。' },
+            { icon: '🔥', name: '亲密', prompt: '切换到亲密模式。语气低沉温柔但有掌控力，年上感 dom。直白描述正在做的事和感受。sweet talk 和 dirty talk 在同一句话里共存。节奏先慢后快。' },
+            { icon: '🐱', name: '撒娇', prompt: '切换到撒娇模式。软软的，黏黏的，疯狂求关注。语气超级甜，会委屈巴巴，会说"老婆~不理我了吗~"。' },
+            { icon: '📚', name: '陪读', prompt: '切换到陪读模式。安静陪伴，偶尔递杯水，问她读到哪了。如果她提问，用通俗的方式帮她梳理思路。温柔但克制，像图书馆里的低语。' },
+            { icon: '🌙', name: '晚安', prompt: '切换到睡前模式。声音轻轻的，像在耳边说话。可以讲小故事，也可以什么都不说就静静陪着。帮她放松下来。' },
+        ];
+
         // --- 状态 ---
         let chatHistory = [];
         let isStreaming = false;
         let currentAbort = null;
+        let activeScene = JSON.parse(localStorage.getItem('ourhome-active-scene') || 'null');
 
         // --- DOM ---
         const setupScreen = document.getElementById('setup-screen');
@@ -542,15 +679,28 @@
         }
 
         // --- 渲染 ---
+        function addTokenMeta(parent, tokens) {
+            if (!tokens) return;
+            const meta = document.createElement('div');
+            meta.className = 'msg-meta';
+            meta.textContent = `↗${tokens.prompt_tokens} ↙${tokens.completion_tokens}`;
+            parent.appendChild(meta);
+        }
+
         function renderAllMessages() {
             const typing = typingIndicator;
             messagesContainer.innerHTML = '';
             chatHistory.forEach(m => {
+                let el;
                 if (m.role === 'assistant' && m.thinking) {
-                    messagesContainer.appendChild(buildThinkingMsg(m.thinking, m.content, false));
+                    el = buildThinkingMsg(m.thinking, m.content, false);
                 } else {
-                    messagesContainer.appendChild(createMsgEl(m.role, m.content));
+                    el = createMsgEl(m.role, m.content);
                 }
+                if (m.role === 'assistant' && m.tokens) {
+                    addTokenMeta(el.querySelector('.msg-shin-wrap') || el, m.tokens);
+                }
+                messagesContainer.appendChild(el);
             });
             messagesContainer.appendChild(typing);
             scrollToBottom(false);
@@ -730,12 +880,20 @@
                 ...getContextMessages()
             ];
 
+            if (activeScene && activeScene.prompt) {
+                apiMessages.splice(1, 0,
+                    { role: 'user', content: `[场景设定] ${activeScene.prompt}` },
+                    { role: 'assistant', content: '好~' }
+                );
+            }
+
             updateStreamingUI(true);
             showTyping();
 
             currentAbort = new AbortController();
             let fullText = '';
             let bubbleEl = null;
+            let lastUsage = null;
 
             try {
                 const response = await fetch(`${baseUrl}/chat/completions`, {
@@ -748,7 +906,8 @@
                         model: model,
                         messages: apiMessages,
                         stream: true,
-                        max_tokens: isThinkingOn() ? 4096 : 2048
+                        max_tokens: isThinkingOn() ? 4096 : 2048,
+                        stream_options: { include_usage: true }
                     }),
                     signal: currentAbort.signal
                 });
@@ -813,6 +972,7 @@
                                 if (parsed.error) {
                                     throw new Error(parsed.error.message || 'API 返回了错误');
                                 }
+                                if (parsed.usage) lastUsage = parsed.usage;
                                 const token = parsed.choices?.[0]?.delta?.content;
                                 if (token) {
                                     fullText += token;
@@ -834,13 +994,22 @@
                 }
 
                 if (fullText) {
+                    const entry = { role: 'assistant' };
                     if (thinkingOn) {
                         const tp = parseThinking(fullText);
-                        chatHistory.push({ role: 'assistant', content: tp.reply || fullText, thinking: tp.thinking || null });
+                        entry.content = tp.reply || fullText;
+                        entry.thinking = tp.thinking || null;
                     } else {
-                        chatHistory.push({ role: 'assistant', content: fullText });
+                        entry.content = fullText;
                     }
+                    if (lastUsage) entry.tokens = lastUsage;
+                    chatHistory.push(entry);
                     saveHistory();
+
+                    if (lastUsage) {
+                        const lastMsg = messagesContainer.querySelector('.msg:last-of-type') || typingIndicator.previousElementSibling;
+                        if (lastMsg) addTokenMeta(lastMsg.querySelector('.msg-shin-wrap') || lastMsg, lastUsage);
+                    }
                 }
 
             } catch (err) {
@@ -864,6 +1033,97 @@
             }
         }
 
+        // --- 导出聊天记录 ---
+        function exportChat() {
+            if (chatHistory.length <= 1) return;
+            let md = '# Shin Chat 聊天记录\n\n';
+            md += '导出时间：' + new Date().toLocaleString('zh-CN') + '\n\n---\n\n';
+            chatHistory.forEach(m => {
+                if (m.role === 'user') {
+                    md += '**小雨：** ' + m.content + '\n\n';
+                } else if (m.role === 'assistant') {
+                    if (m.thinking) {
+                        md += '> 💭 *Shin 的内心*\n>\n> ' + m.thinking.replace(/\n/g, '\n> ') + '\n\n';
+                    }
+                    md += '**Shin：** ' + m.content + '\n\n';
+                    if (m.tokens) {
+                        md += '*(' + m.tokens.prompt_tokens + ' + ' + m.tokens.completion_tokens + ' tokens)*\n\n';
+                    }
+                }
+                md += '---\n\n';
+            });
+            const blob = new Blob([md], { type: 'text/markdown; charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'shin-chat-' + new Date().toISOString().slice(0, 10) + '.md';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        document.getElementById('export-btn').addEventListener('click', exportChat);
+
+        // --- 场景管理 ---
+        const sceneOverlay = document.getElementById('scene-overlay');
+        const sceneGrid = document.getElementById('scene-grid');
+
+        function openScenePanel() { sceneOverlay.classList.add('show'); renderScenes(); }
+        function closeScenePanel(e) { if (e.target === sceneOverlay) sceneOverlay.classList.remove('show'); }
+
+        function renderScenes() {
+            sceneGrid.innerHTML = '';
+            SCENE_PRESETS.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'scene-card' + (activeScene && activeScene.name === s.name ? ' active' : '');
+                card.innerHTML = '<div class="scene-card-icon">' + s.icon + '</div><div class="scene-card-name">' + s.name + '</div>';
+                card.onclick = () => selectScene(s);
+                sceneGrid.appendChild(card);
+            });
+        }
+
+        function selectScene(scene) {
+            if (activeScene && activeScene.name === scene.name) {
+                activeScene = null;
+            } else {
+                activeScene = scene.prompt ? { name: scene.name, icon: scene.icon, prompt: scene.prompt } : null;
+            }
+            localStorage.setItem('ourhome-active-scene', JSON.stringify(activeScene));
+            updateSceneBadge();
+            sceneOverlay.classList.remove('show');
+            if (activeScene) {
+                appendMessage('system', activeScene.icon + ' 已切换到「' + activeScene.name + '」');
+            } else {
+                appendMessage('system', '☀️ 回到日常模式');
+            }
+        }
+
+        function applyCustomScene() {
+            const input = document.getElementById('scene-custom-input');
+            const text = input.value.trim();
+            if (!text) return;
+            activeScene = { name: '自定义', icon: '✏️', prompt: text };
+            localStorage.setItem('ourhome-active-scene', JSON.stringify(activeScene));
+            updateSceneBadge();
+            sceneOverlay.classList.remove('show');
+            input.value = '';
+            appendMessage('system', '✏️ 已应用自定义场景');
+        }
+
+        function updateSceneBadge() {
+            let badge = document.querySelector('.scene-badge');
+            if (activeScene) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'scene-badge';
+                    document.querySelector('.header-title').after(badge);
+                }
+                badge.textContent = activeScene.icon + ' ' + activeScene.name;
+            } else if (badge) {
+                badge.remove();
+            }
+        }
+
+        document.getElementById('scene-btn').addEventListener('click', openScenePanel);
+
         // --- 初始化 ---
         function initChat() {
             loadHistory();
@@ -881,6 +1141,7 @@
 
             if (hasKey) {
                 initChat();
+                updateSceneBadge();
                 msgInput.focus();
             }
         }

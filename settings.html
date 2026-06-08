@@ -311,7 +311,10 @@
                 点标签快速选，也可以直接输入任意模型ID~
             </div>
             <br>
-            <button class="api-save-btn" onclick="saveAPI()">保 存</button>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+                <button class="api-save-btn" onclick="saveAPI()">保 存</button>
+                <button class="api-save-btn" onclick="queryBalance()" style="background:#a0b8a0;">查余额</button>
+            </div>
             <div class="api-status" id="api-status"></div>
         </div>
 
@@ -419,6 +422,41 @@
 
     <script src="shared.js"></script>
     <script>
+        async function queryBalance() {
+            const key = document.getElementById('api-aihub').value.trim();
+            const baseUrl = (document.getElementById('api-aihub-url').value.trim() || 'https://aihubmix.com/v1').replace(/\/+$/, '');
+            const statusEl = document.getElementById('api-status');
+            if (!key) { statusEl.textContent = '请先填写 API Key'; statusEl.style.color = '#c47a6e'; return; }
+
+            statusEl.textContent = '查询中...';
+            statusEl.style.color = '#a89b91';
+
+            const endpoints = [
+                baseUrl.replace('/v1', '') + '/v1/dashboard/billing/subscription',
+                baseUrl.replace('/v1', '') + '/v1/dashboard/billing/credit_grants',
+                baseUrl + '/dashboard/billing/subscription',
+            ];
+
+            for (const url of endpoints) {
+                try {
+                    const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + key } });
+                    if (!res.ok) continue;
+                    const data = await res.json();
+                    const bal = data.hard_limit_usd || data.system_hard_limit_usd || data.total_granted || data.total_available;
+                    const used = data.total_used || data.total_usage;
+                    if (bal !== undefined) {
+                        let msg = '余额: $' + Number(bal).toFixed(2);
+                        if (used !== undefined) msg += ' · 已用: $' + Number(used).toFixed(2);
+                        statusEl.textContent = msg;
+                        statusEl.style.color = '#a0b8a0';
+                        return;
+                    }
+                } catch {}
+            }
+            statusEl.textContent = '该 API 暂不支持余额查询~';
+            statusEl.style.color = '#c4a87a';
+        }
+
         function pickModel(id) {
             document.getElementById('api-model').value = id;
         }
