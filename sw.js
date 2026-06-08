@@ -1,7 +1,10 @@
-const CACHE_NAME = 'ourhome-v1';
+const CACHE_NAME = 'ourhome-v2';
 const FILES_TO_CACHE = [
     './',
     './index.html',
+    './chat.html',
+    './memory.html',
+    './settings.html',
     './living.html',
     './letters.html',
     './gallery.html',
@@ -16,6 +19,7 @@ const FILES_TO_CACHE = [
     './shared.css',
     './shared.js',
     './manifest.json',
+    './icon.svg',
 ];
 
 self.addEventListener('install', (event) => {

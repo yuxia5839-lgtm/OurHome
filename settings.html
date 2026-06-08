@@ -218,6 +218,15 @@
             <input type="password" class="api-input" id="api-aihub" placeholder="sk-...">
             <div class="api-label" style="margin-top:0.8rem">AIHubMix Base URL</div>
             <input type="text" class="api-input" id="api-aihub-url" placeholder="https://aihubmix.com/v1">
+            <div class="api-label" style="margin-top:0.8rem">模型</div>
+            <select class="api-input" id="api-model" style="-webkit-appearance:auto; appearance:auto; cursor:pointer;">
+                <option value="claude-sonnet-4-20250514">Claude Sonnet 4 · 推荐</option>
+                <option value="claude-haiku-4-20250514">Claude Haiku 4 · 快速省钱</option>
+                <option value="claude-opus-4-20250514">Claude Opus 4 · 最强</option>
+            </select>
+            <div style="font-size:0.63rem; color:#a89b91; margin-top:0.3rem;">
+                日常聊天选 Sonnet 就够啦，Opus 更聪明但更贵~
+            </div>
             <br>
             <button class="api-save-btn" onclick="saveAPI()">保 存</button>
             <div class="api-status" id="api-status"></div>
@@ -293,18 +302,25 @@
         function saveAPI() {
             const key = document.getElementById('api-aihub').value.trim();
             const url = document.getElementById('api-aihub-url').value.trim() || 'https://aihubmix.com/v1';
+            const model = document.getElementById('api-model').value;
             if (key) {
                 localStorage.setItem('ourhome-api-key', key);
                 localStorage.setItem('ourhome-api-url', url);
-                document.getElementById('api-status').textContent = '✓ 已保存';
+                localStorage.setItem('ourhome-model', model);
+                document.getElementById('api-status').textContent = '✓ 已保存，可以去 Chat 聊天啦~';
+            } else {
+                document.getElementById('api-status').textContent = '请先填写 API Key';
+                document.getElementById('api-status').style.color = '#c47a6e';
             }
         }
 
         // 加载已保存的配置
         const savedKey = localStorage.getItem('ourhome-api-key');
         const savedUrl = localStorage.getItem('ourhome-api-url');
+        const savedModel = localStorage.getItem('ourhome-model');
         if (savedKey) document.getElementById('api-aihub').value = savedKey;
         if (savedUrl) document.getElementById('api-aihub-url').value = savedUrl;
+        if (savedModel) document.getElementById('api-model').value = savedModel;
 
         // 主题切换
         function setTheme(mode) {
