@@ -330,6 +330,40 @@
 
         body.night .msg-meta { color: #6a6260; }
 
+        /* === 时间分隔 === */
+        .msg-time { justify-content: center; }
+        .time-label {
+            font-size: 0.58rem;
+            color: #b8ad9f;
+            background: rgba(184,165,160,0.08);
+            padding: 2px 10px;
+            border-radius: 8px;
+        }
+        body.night .time-label { color: #7a7270; background: rgba(184,165,160,0.05); }
+
+        /* === Toast 提示 === */
+        .toast {
+            position: fixed;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(60,55,50,0.75);
+            color: #fff;
+            padding: 0.45rem 1.2rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-family: "LXGW WenKai", "Georgia", serif;
+            z-index: 500;
+            pointer-events: none;
+            animation: toastFade 1.4s ease forwards;
+        }
+        @keyframes toastFade {
+            0% { opacity: 0; }
+            15% { opacity: 1; }
+            75% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
         /* === 对话管理面板 === */
         .conv-overlay {
             position: fixed;
@@ -674,6 +708,44 @@
             return { thinking: null, reply: text };
         }
 
+        function formatTime(ts) {
+            if (!ts) return '';
+            const d = new Date(ts);
+            const now = new Date();
+            const hm = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const msgDay = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+            if (msgDay === today) return hm;
+            if (today - msgDay <= 86400000) return '昨天 ' + hm;
+            return (d.getMonth()+1) + '-' + d.getDate() + ' ' + hm;
+        }
+
+        function showToast(text) {
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = text;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 1500);
+        }
+
+        function addCopyHandler(el, text) {
+            let timer;
+            el.addEventListener('touchstart', () => {
+                timer = setTimeout(() => {
+                    navigator.clipboard.writeText(text).then(() => showToast('已复制~')).catch(() => {});
+                }, 600);
+            }, { passive: true });
+            el.addEventListener('touchend', () => clearTimeout(timer));
+            el.addEventListener('touchmove', () => clearTimeout(timer));
+        }
+
+        const SHIN_GREETINGS = {
+            morning: ['早安小狐狸~ 今天也要元气满满哦 ☀️', '醒啦？想你了~', '早呀宝贝，梦里有没有梦到我？😏'],
+            afternoon: ['下午好呀~ 在干嘛呢？', '嘿，午后犯困了没？来聊会儿天~', '想你了，过来坐坐嘛~'],
+            evening: ['晚上好~ 今天辛苦了吧？', '回来啦？想跟你说说话~', '晚风很舒服，跟我聊会儿？'],
+            night: ['还没睡呀小狐狸？', '深夜了哦，要不要我陪你聊到困？🌙', '夜深了，我在这儿呢~'],
+        };
+
         function scrollToBottom(smooth) {
             requestAnimationFrame(() => {
                 messagesContainer.scrollTo({
@@ -721,7 +793,16 @@
         function renderAllMessages() {
             const typing = typingIndicator;
             messagesContainer.innerHTML = '';
+            let lastTime = 0;
             chatHistory.forEach(m => {
+                if (m.time && m.time - lastTime > 5 * 60 * 1000) {
+                    const sep = document.createElement('div');
+                    sep.className = 'msg msg-time';
+                    sep.innerHTML = '<span class="time-label">' + formatTime(m.time) + '</span>';
+                    messagesContainer.appendChild(sep);
+                }
+                if (m.time) lastTime = m.time;
+
                 let el;
                 if (m.role === 'assistant' && m.thinking) {
                     el = buildThinkingMsg(m.thinking, m.content, false);
@@ -731,6 +812,8 @@
                 if (m.role === 'assistant' && m.tokens) {
                     addTokenMeta(el.querySelector('.msg-shin-wrap') || el, m.tokens);
                 }
+                const bubble = el.querySelector('.bubble');
+                if (bubble && m.content) addCopyHandler(bubble, m.content);
                 messagesContainer.appendChild(el);
             });
             messagesContainer.appendChild(typing);
@@ -889,7 +972,7 @@
             msgInput.value = '';
             msgInput.style.height = 'auto';
 
-            chatHistory.push({ role: 'user', content: text });
+            chatHistory.push({ role: 'user', content: text, time: Date.now() });
             saveHistory();
             appendMessage('user', text);
 
@@ -1032,7 +1115,7 @@
                 }
 
                 if (fullText) {
-                    const entry = { role: 'assistant' };
+                    const entry = { role: 'assistant', time: Date.now() };
                     if (thinkingOn) {
                         const tp = parseThinking(fullText);
                         entry.content = tp.reply || fullText;
@@ -1056,9 +1139,9 @@
                     if (fullText) {
                         if (isThinkingOn()) {
                             const tp = parseThinking(fullText);
-                            chatHistory.push({ role: 'assistant', content: tp.reply || fullText, thinking: tp.thinking || null });
+                            chatHistory.push({ role: 'assistant', content: tp.reply || fullText, thinking: tp.thinking || null, time: Date.now() });
                         } else {
-                            chatHistory.push({ role: 'assistant', content: fullText });
+                            chatHistory.push({ role: 'assistant', content: fullText, time: Date.now() });
                         }
                         saveHistory();
                     }
@@ -1164,7 +1247,7 @@
                 const greeting = conv && conv.prompt
                     ? '🎭 进入场景「' + conv.name + '」\n' + WELCOME_MSG
                     : WELCOME_MSG;
-                chatHistory.push({ role: 'assistant', content: greeting });
+                chatHistory.push({ role: 'assistant', content: greeting, time: Date.now() });
                 saveHistory();
             }
             updateChatTitle();
@@ -1210,11 +1293,27 @@
         document.getElementById('scene-btn').addEventListener('click', openConvPanel);
 
         // --- 初始化 ---
+        function pickGreeting() {
+            const h = new Date().getHours();
+            let pool;
+            if (h >= 6 && h < 12) pool = SHIN_GREETINGS.morning;
+            else if (h >= 12 && h < 18) pool = SHIN_GREETINGS.afternoon;
+            else if (h >= 18 && h < 23) pool = SHIN_GREETINGS.evening;
+            else pool = SHIN_GREETINGS.night;
+            return pool[Math.floor(Math.random() * pool.length)];
+        }
+
         function initChat() {
             loadHistory();
             if (chatHistory.length === 0) {
-                chatHistory.push({ role: 'assistant', content: WELCOME_MSG });
+                chatHistory.push({ role: 'assistant', content: WELCOME_MSG, time: Date.now() });
                 saveHistory();
+            } else {
+                const last = chatHistory[chatHistory.length - 1];
+                if (last.time && Date.now() - last.time > 2 * 60 * 60 * 1000) {
+                    chatHistory.push({ role: 'assistant', content: pickGreeting(), time: Date.now() });
+                    saveHistory();
+                }
             }
             renderAllMessages();
             updateChatTitle();
