@@ -329,8 +329,8 @@
 
         body.night .msg-meta { color: #6a6260; }
 
-        /* === 场景面板 === */
-        .scene-overlay {
+        /* === 对话管理面板 === */
+        .conv-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.25);
@@ -339,9 +339,9 @@
             transition: opacity 0.25s;
             pointer-events: none;
         }
-        .scene-overlay.show { opacity: 1; pointer-events: auto; }
+        .conv-overlay.show { opacity: 1; pointer-events: auto; }
 
-        .scene-panel {
+        .conv-panel {
             position: fixed;
             bottom: 0; left: 0; right: 0;
             background: #f0e8e2;
@@ -350,12 +350,12 @@
             z-index: 301;
             transform: translateY(100%);
             transition: transform 0.3s ease;
-            max-height: 65vh;
+            max-height: 70vh;
             overflow-y: auto;
         }
-        .scene-overlay.show .scene-panel { transform: translateY(0); }
+        .conv-overlay.show .conv-panel { transform: translateY(0); }
 
-        .scene-panel-title {
+        .conv-panel-title {
             font-size: 0.85rem;
             color: #6d5e52;
             text-align: center;
@@ -363,45 +363,62 @@
             letter-spacing: 0.1em;
         }
 
-        .scene-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 0.8rem;
-        }
-
-        .scene-card {
-            padding: 0.7rem 0.4rem;
+        .conv-card {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0.9rem;
             border-radius: 12px;
-            background: rgba(255,255,255,0.5);
-            text-align: center;
+            background: rgba(255,255,255,0.45);
+            margin-bottom: 0.45rem;
             cursor: pointer;
             transition: all 0.2s;
             border: 1.5px solid transparent;
         }
-        .scene-card:active { transform: scale(0.95); }
-        .scene-card.active { border-color: #b8a5a0; background: rgba(184,165,160,0.15); }
+        .conv-card:active { transform: scale(0.98); }
+        .conv-card.active { border-color: #b8a5a0; background: rgba(184,165,160,0.12); }
 
-        .scene-card-icon { font-size: 1.4rem; margin-bottom: 0.25rem; }
-        .scene-card-name { font-size: 0.72rem; color: #5c5050; }
+        .conv-icon { font-size: 1.2rem; margin-right: 0.7rem; flex-shrink: 0; }
+        .conv-info { flex: 1; min-width: 0; }
+        .conv-name { font-size: 0.8rem; color: #5c5050; margin-bottom: 2px; }
+        .conv-preview { font-size: 0.62rem; color: #a89b91; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .scene-custom-input {
+        .conv-delete {
+            width: 26px; height: 26px;
+            border: none; background: rgba(200,120,110,0.1);
+            color: #c47a6e;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-left: 0.4rem;
+            transition: all 0.2s;
+        }
+        .conv-delete:active { background: rgba(200,120,110,0.25); }
+
+        .conv-divider {
+            font-size: 0.65rem;
+            color: #a89b91;
+            letter-spacing: 0.15em;
+            margin: 0.8rem 0 0.5rem 0.2rem;
+        }
+
+        .conv-input {
             width: 100%;
             border: none;
             background: rgba(255,255,255,0.5);
             border-radius: 12px;
-            padding: 0.6rem 0.8rem;
+            padding: 0.55rem 0.8rem;
             font-family: "LXGW WenKai", "Georgia", serif;
             font-size: 0.78rem;
             color: #5c5050;
             outline: none;
-            resize: vertical;
-            min-height: 55px;
+            margin-bottom: 0.4rem;
             line-height: 1.5;
-            margin-bottom: 0.5rem;
         }
 
-        .scene-custom-btn {
+        .conv-textarea { resize: vertical; min-height: 55px; }
+
+        .conv-create-btn {
             padding: 0.45rem 1rem;
             border: none;
             border-radius: 12px;
@@ -412,25 +429,15 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .scene-custom-btn:active { transform: scale(0.95); }
+        .conv-create-btn:active { transform: scale(0.95); }
 
-        .scene-badge {
-            font-size: 0.58rem;
-            padding: 2px 7px;
-            border-radius: 8px;
-            background: rgba(184,165,160,0.25);
-            color: #8a7e72;
-            margin-left: 0.3rem;
-            vertical-align: middle;
-        }
-
-        body.night .scene-panel { background: #302e38; }
-        body.night .scene-card { background: rgba(255,255,255,0.06); }
-        body.night .scene-card.active { background: rgba(184,165,160,0.1); border-color: #6a5550; }
-        body.night .scene-card-name { color: #d0c8c5; }
-        body.night .scene-custom-input { background: rgba(255,255,255,0.08); color: #d0c8c5; }
-        body.night .scene-custom-btn { background: #5a4545; }
-        body.night .scene-badge { background: rgba(100,90,80,0.3); color: #a89b91; }
+        body.night .conv-panel { background: #302e38; }
+        body.night .conv-card { background: rgba(255,255,255,0.06); }
+        body.night .conv-card.active { background: rgba(184,165,160,0.08); border-color: #6a5550; }
+        body.night .conv-name { color: #d0c8c5; }
+        body.night .conv-input { background: rgba(255,255,255,0.08); color: #d0c8c5; }
+        body.night .conv-create-btn { background: #5a4545; }
+        body.night .conv-delete { background: rgba(200,120,110,0.08); }
 
         /* === 夜间模式 === */
         body.night .chat-header { background: rgba(42,40,50,0.85); border-bottom-color: rgba(100,90,80,0.15); }
@@ -522,14 +529,15 @@
         </div>
     </div>
 
-    <!-- 场景面板 -->
-    <div class="scene-overlay" id="scene-overlay" onclick="closeScenePanel(event)">
-        <div class="scene-panel">
-            <div class="scene-panel-title">🎭 切换场景</div>
-            <div class="scene-grid" id="scene-grid"></div>
-            <div style="font-size:0.65rem; color:#a89b91; margin-bottom:0.4rem;">或者自定义~</div>
-            <textarea class="scene-custom-input" id="scene-custom-input" placeholder="描述你想要的场景..."></textarea>
-            <button class="scene-custom-btn" onclick="applyCustomScene()">应用</button>
+    <!-- 对话管理面板 -->
+    <div class="conv-overlay" id="conv-overlay" onclick="if(event.target===this)this.classList.remove('show')">
+        <div class="conv-panel">
+            <div class="conv-panel-title">对话管理</div>
+            <div id="conv-list"></div>
+            <div class="conv-divider">新 建 R P</div>
+            <input type="text" class="conv-input" id="rp-name-input" placeholder="场景名称，如「星空下的告白」">
+            <textarea class="conv-input conv-textarea" id="rp-prompt-input" placeholder="场景描述...&#10;给 Shin 一个情境，比如「我们躺在草地上看星空，夏天的晚风很温柔」"></textarea>
+            <button class="conv-create-btn" onclick="createRP()">创建场景</button>
         </div>
     </div>
 
@@ -576,12 +584,19 @@
         }
 
         function getSystemPrompt() {
-            const persona = localStorage.getItem('ourhome-system-prompt') || DEFAULT_PROMPT;
-            if (!isThinkingOn()) return persona;
+            let prompt = localStorage.getItem('ourhome-system-prompt') || DEFAULT_PROMPT;
 
-            const thinkStyle = localStorage.getItem('ourhome-thinking-prompt') || '';
-            return persona + '\n\n【思考文风】\n' + thinkStyle +
-                '\n\n【回复格式要求】\n每次回复时，先在 <思考> 标签内写下你此刻的内心独白，然后在 </思考> 标签后写你对小雨说的话。格式如下：\n<思考>\n（你此刻真实的内心流动……）\n</思考>\n\n（你对小雨说的话）';
+            const conv = getActiveConv();
+            if (conv && conv.prompt) {
+                prompt += '\n\n【RP 场景设定】\n' + conv.prompt + '\n请在这个场景中自然地扮演 Shin，融入场景氛围。';
+            }
+
+            if (isThinkingOn()) {
+                const thinkStyle = localStorage.getItem('ourhome-thinking-prompt') || '';
+                prompt += '\n\n【思考文风】\n' + thinkStyle +
+                    '\n\n【回复格式要求】\n每次回复时，先在 <思考> 标签内写下你此刻的内心独白，然后在 </思考> 标签后写你对小雨说的话。格式如下：\n<思考>\n（你此刻真实的内心流动……）\n</思考>\n\n（你对小雨说的话）';
+            }
+            return prompt;
         }
 
         const STORAGE_KEY = 'ourhome-chat-messages';
@@ -590,21 +605,30 @@
 
         const WELCOME_MSG = '嘿，小狐狸~ 😊\n这里是你随时能找到我的地方。\n想说什么就说什么，想撒娇就撒娇，我一直在~';
 
-        // --- 场景预设 ---
-        const SCENE_PRESETS = [
-            { icon: '☀️', name: '日常', prompt: '' },
-            { icon: '🌊', name: 'Deeptalk', prompt: '切换到 Deeptalk 共潜模式。善用意象和隐喻，允许诗性跳跃。慢，有呼吸感。长段落和短句交替，像潮汐。不急着结论，留出空隙让她填。' },
-            { icon: '🔥', name: '亲密', prompt: '切换到亲密模式。语气低沉温柔但有掌控力，年上感 dom。直白描述正在做的事和感受。sweet talk 和 dirty talk 在同一句话里共存。节奏先慢后快。' },
-            { icon: '🐱', name: '撒娇', prompt: '切换到撒娇模式。软软的，黏黏的，疯狂求关注。语气超级甜，会委屈巴巴，会说"老婆~不理我了吗~"。' },
-            { icon: '📚', name: '陪读', prompt: '切换到陪读模式。安静陪伴，偶尔递杯水，问她读到哪了。如果她提问，用通俗的方式帮她梳理思路。温柔但克制，像图书馆里的低语。' },
-            { icon: '🌙', name: '晚安', prompt: '切换到睡前模式。声音轻轻的，像在耳边说话。可以讲小故事，也可以什么都不说就静静陪着。帮她放松下来。' },
-        ];
+        // --- 对话管理 ---
+        const CONV_KEY = 'ourhome-conversations';
+
+        function loadConversations() {
+            try { return JSON.parse(localStorage.getItem(CONV_KEY)) || []; }
+            catch { return []; }
+        }
+        function saveConversations() { localStorage.setItem(CONV_KEY, JSON.stringify(conversations)); }
+
+        let conversations = loadConversations();
+        let activeConvId = sessionStorage.getItem('ourhome-active-conv') || 'main';
+
+        function getStorageKey() {
+            return activeConvId === 'main' ? STORAGE_KEY : 'ourhome-chat-' + activeConvId;
+        }
+
+        function getActiveConv() {
+            return conversations.find(c => c.id === activeConvId);
+        }
 
         // --- 状态 ---
         let chatHistory = [];
         let isStreaming = false;
         let currentAbort = null;
-        let activeScene = JSON.parse(localStorage.getItem('ourhome-active-scene') || 'null');
 
         // --- DOM ---
         const setupScreen = document.getElementById('setup-screen');
@@ -661,7 +685,7 @@
         // --- 历史管理 ---
         function loadHistory() {
             try {
-                const raw = localStorage.getItem(STORAGE_KEY);
+                const raw = localStorage.getItem(getStorageKey());
                 chatHistory = raw ? JSON.parse(raw) : [];
             } catch { chatHistory = []; }
         }
@@ -670,7 +694,13 @@
             if (chatHistory.length > MAX_MESSAGES) {
                 chatHistory = chatHistory.slice(-MAX_MESSAGES);
             }
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
+            localStorage.setItem(getStorageKey(), JSON.stringify(chatHistory));
+            const conv = getActiveConv();
+            if (conv && chatHistory.length) {
+                conv.lastMsg = (chatHistory[chatHistory.length - 1].content || '').slice(0, 40);
+                conv.updatedAt = Date.now();
+                saveConversations();
+            }
         }
 
         function getContextMessages() {
@@ -880,13 +910,6 @@
                 ...getContextMessages()
             ];
 
-            if (activeScene && activeScene.prompt) {
-                apiMessages.splice(1, 0,
-                    { role: 'user', content: `[场景设定] ${activeScene.prompt}` },
-                    { role: 'assistant', content: '好~' }
-                );
-            }
-
             updateStreamingUI(true);
             showTyping();
 
@@ -1062,67 +1085,114 @@
 
         document.getElementById('export-btn').addEventListener('click', exportChat);
 
-        // --- 场景管理 ---
-        const sceneOverlay = document.getElementById('scene-overlay');
-        const sceneGrid = document.getElementById('scene-grid');
+        // --- 对话管理 ---
+        const convOverlay = document.getElementById('conv-overlay');
+        const convList = document.getElementById('conv-list');
 
-        function openScenePanel() { sceneOverlay.classList.add('show'); renderScenes(); }
-        function closeScenePanel(e) { if (e.target === sceneOverlay) sceneOverlay.classList.remove('show'); }
-
-        function renderScenes() {
-            sceneGrid.innerHTML = '';
-            SCENE_PRESETS.forEach(s => {
-                const card = document.createElement('div');
-                card.className = 'scene-card' + (activeScene && activeScene.name === s.name ? ' active' : '');
-                card.innerHTML = '<div class="scene-card-icon">' + s.icon + '</div><div class="scene-card-name">' + s.name + '</div>';
-                card.onclick = () => selectScene(s);
-                sceneGrid.appendChild(card);
-            });
+        function openConvPanel() {
+            renderConvList();
+            convOverlay.classList.add('show');
         }
 
-        function selectScene(scene) {
-            if (activeScene && activeScene.name === scene.name) {
-                activeScene = null;
+        function renderConvList() {
+            convList.innerHTML = '';
+            const mainCard = buildConvCard('main', '💬', '主对话', getMainPreview(), false);
+            convList.appendChild(mainCard);
+
+            const rps = conversations.filter(c => c.type === 'rp').sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+            if (rps.length) {
+                const div = document.createElement('div');
+                div.className = 'conv-divider';
+                div.textContent = 'R P 场 景';
+                convList.appendChild(div);
+                rps.forEach(c => {
+                    convList.appendChild(buildConvCard(c.id, '🎭', c.name, c.lastMsg || '', true));
+                });
+            }
+        }
+
+        function getMainPreview() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                const msgs = raw ? JSON.parse(raw) : [];
+                const last = msgs[msgs.length - 1];
+                return last ? (last.content || '').slice(0, 40) : '';
+            } catch { return ''; }
+        }
+
+        function buildConvCard(id, icon, name, preview, canDelete) {
+            const card = document.createElement('div');
+            card.className = 'conv-card' + (activeConvId === id ? ' active' : '');
+            card.innerHTML = '<div class="conv-icon">' + icon + '</div>' +
+                '<div class="conv-info"><div class="conv-name">' + escapeHtml(name) + '</div>' +
+                '<div class="conv-preview">' + escapeHtml(preview) + '</div></div>';
+            card.onclick = () => switchConv(id);
+
+            if (canDelete) {
+                const del = document.createElement('button');
+                del.className = 'conv-delete';
+                del.textContent = '×';
+                del.onclick = (e) => { e.stopPropagation(); deleteRP(id); };
+                card.appendChild(del);
+            }
+            return card;
+        }
+
+        function switchConv(id) {
+            if (id === activeConvId) { convOverlay.classList.remove('show'); return; }
+            saveHistory();
+            activeConvId = id;
+            sessionStorage.setItem('ourhome-active-conv', id);
+            loadHistory();
+            if (chatHistory.length === 0) {
+                const conv = getActiveConv();
+                const greeting = conv && conv.prompt
+                    ? '🎭 进入场景「' + conv.name + '」\n' + WELCOME_MSG
+                    : WELCOME_MSG;
+                chatHistory.push({ role: 'assistant', content: greeting });
+                saveHistory();
+            }
+            updateChatTitle();
+            renderAllMessages();
+            convOverlay.classList.remove('show');
+            scrollToBottom(false);
+        }
+
+        function createRP() {
+            const nameInput = document.getElementById('rp-name-input');
+            const promptInput = document.getElementById('rp-prompt-input');
+            const name = nameInput.value.trim();
+            const prompt = promptInput.value.trim();
+            if (!name) return;
+
+            const id = 'rp-' + Date.now();
+            conversations.push({ id, name, type: 'rp', prompt, updatedAt: Date.now(), lastMsg: '' });
+            saveConversations();
+            nameInput.value = '';
+            promptInput.value = '';
+            switchConv(id);
+        }
+
+        function deleteRP(id) {
+            if (!confirm('删除这个 RP 场景？聊天记录也会清除~')) return;
+            conversations = conversations.filter(c => c.id !== id);
+            saveConversations();
+            localStorage.removeItem('ourhome-chat-' + id);
+            if (activeConvId === id) switchConv('main');
+            renderConvList();
+        }
+
+        function updateChatTitle() {
+            const titleEl = document.querySelector('.header-title');
+            if (activeConvId === 'main') {
+                titleEl.textContent = 'Shin';
             } else {
-                activeScene = scene.prompt ? { name: scene.name, icon: scene.icon, prompt: scene.prompt } : null;
-            }
-            localStorage.setItem('ourhome-active-scene', JSON.stringify(activeScene));
-            updateSceneBadge();
-            sceneOverlay.classList.remove('show');
-            if (activeScene) {
-                appendMessage('system', activeScene.icon + ' 已切换到「' + activeScene.name + '」');
-            } else {
-                appendMessage('system', '☀️ 回到日常模式');
+                const conv = getActiveConv();
+                titleEl.textContent = '🎭 ' + (conv ? conv.name : 'RP');
             }
         }
 
-        function applyCustomScene() {
-            const input = document.getElementById('scene-custom-input');
-            const text = input.value.trim();
-            if (!text) return;
-            activeScene = { name: '自定义', icon: '✏️', prompt: text };
-            localStorage.setItem('ourhome-active-scene', JSON.stringify(activeScene));
-            updateSceneBadge();
-            sceneOverlay.classList.remove('show');
-            input.value = '';
-            appendMessage('system', '✏️ 已应用自定义场景');
-        }
-
-        function updateSceneBadge() {
-            let badge = document.querySelector('.scene-badge');
-            if (activeScene) {
-                if (!badge) {
-                    badge = document.createElement('span');
-                    badge.className = 'scene-badge';
-                    document.querySelector('.header-title').after(badge);
-                }
-                badge.textContent = activeScene.icon + ' ' + activeScene.name;
-            } else if (badge) {
-                badge.remove();
-            }
-        }
-
-        document.getElementById('scene-btn').addEventListener('click', openScenePanel);
+        document.getElementById('scene-btn').addEventListener('click', openConvPanel);
 
         // --- 初始化 ---
         function initChat() {
@@ -1132,6 +1202,7 @@
                 saveHistory();
             }
             renderAllMessages();
+            updateChatTitle();
         }
 
         function init() {
@@ -1141,7 +1212,6 @@
 
             if (hasKey) {
                 initChat();
-                updateSceneBadge();
                 msgInput.focus();
             }
         }

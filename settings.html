@@ -442,12 +442,16 @@
                     const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + key } });
                     if (!res.ok) continue;
                     const data = await res.json();
-                    const bal = data.hard_limit_usd || data.system_hard_limit_usd || data.total_granted || data.total_available;
+                    const avail = data.total_available;
+                    const granted = data.total_granted;
                     const used = data.total_used || data.total_usage;
-                    if (bal !== undefined) {
-                        let msg = '余额: $' + Number(bal).toFixed(2);
-                        if (used !== undefined) msg += ' · 已用: $' + Number(used).toFixed(2);
-                        statusEl.textContent = msg;
+                    if (avail !== undefined) {
+                        statusEl.textContent = '可用余额: $' + Number(avail).toFixed(2) + (used !== undefined ? ' · 已用: $' + Number(used).toFixed(2) : '');
+                        statusEl.style.color = '#a0b8a0';
+                        return;
+                    }
+                    if (granted !== undefined && used !== undefined) {
+                        statusEl.textContent = '余额: $' + Number(granted - used).toFixed(2) + ' · 总额: $' + Number(granted).toFixed(2);
                         statusEl.style.color = '#a0b8a0';
                         return;
                     }
