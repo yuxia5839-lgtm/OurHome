@@ -124,6 +124,39 @@
 
         .api-save-btn:hover { background: #a89590; transform: translateY(-1px); }
 
+        .model-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .model-tag {
+            padding: 0.25rem 0.65rem;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.3);
+            font-size: 0.65rem;
+            color: #8a7e72;
+            cursor: pointer;
+            border: 1px solid rgba(155,142,130,0.15);
+            font-family: "LXGW WenKai", "Georgia", serif;
+            transition: all 0.2s;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .model-tag:active {
+            transform: scale(0.95);
+            background: rgba(184,165,160,0.3);
+        }
+
+        body.night .model-tag {
+            background: rgba(255,255,255,0.06);
+            color: #a89b91;
+            border-color: rgba(100,90,80,0.2);
+        }
+
         .api-status {
             font-size: 0.7rem;
             color: #a0b8a0;
@@ -219,13 +252,19 @@
             <div class="api-label" style="margin-top:0.8rem">AIHubMix Base URL</div>
             <input type="text" class="api-input" id="api-aihub-url" placeholder="https://aihubmix.com/v1">
             <div class="api-label" style="margin-top:0.8rem">模型</div>
-            <select class="api-input" id="api-model" style="-webkit-appearance:auto; appearance:auto; cursor:pointer;">
-                <option value="claude-sonnet-4-20250514">Claude Sonnet 4 · 推荐</option>
-                <option value="claude-haiku-4-20250514">Claude Haiku 4 · 快速省钱</option>
-                <option value="claude-opus-4-20250514">Claude Opus 4 · 最强</option>
-            </select>
-            <div style="font-size:0.63rem; color:#a89b91; margin-top:0.3rem;">
-                日常聊天选 Sonnet 就够啦，Opus 更聪明但更贵~
+            <input type="text" class="api-input" id="api-model" placeholder="输入模型ID" value="claude-sonnet-4-20250514">
+            <div class="model-tags">
+                <span class="model-tag" onclick="pickModel('claude-sonnet-4-20250514')">Sonnet 4</span>
+                <span class="model-tag" onclick="pickModel('claude-sonnet-4-5-20241022')">Sonnet 4.5</span>
+                <span class="model-tag" onclick="pickModel('claude-sonnet-4-6')">Sonnet 4.6</span>
+                <span class="model-tag" onclick="pickModel('claude-opus-4-20250514')">Opus 4</span>
+                <span class="model-tag" onclick="pickModel('claude-opus-4-6')">Opus 4.6</span>
+                <span class="model-tag" onclick="pickModel('claude-opus-4-7-20250422')">Opus 4.7</span>
+                <span class="model-tag" onclick="pickModel('claude-opus-4-8')">Opus 4.8</span>
+                <span class="model-tag" onclick="pickModel('claude-haiku-4-5-20251001')">Haiku 4.5</span>
+            </div>
+            <div style="font-size:0.63rem; color:#a89b91;">
+                点标签快速选，也可以直接输入任意模型ID~
             </div>
             <br>
             <button class="api-save-btn" onclick="saveAPI()">保 存</button>
@@ -299,10 +338,14 @@
 
     <script src="shared.js"></script>
     <script>
+        function pickModel(id) {
+            document.getElementById('api-model').value = id;
+        }
+
         function saveAPI() {
             const key = document.getElementById('api-aihub').value.trim();
             const url = document.getElementById('api-aihub-url').value.trim() || 'https://aihubmix.com/v1';
-            const model = document.getElementById('api-model').value;
+            const model = document.getElementById('api-model').value.trim();
             if (key) {
                 localStorage.setItem('ourhome-api-key', key);
                 localStorage.setItem('ourhome-api-url', url);
