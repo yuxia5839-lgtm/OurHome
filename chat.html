@@ -163,6 +163,58 @@
             border-radius: 10px;
         }
 
+        /* === 思考面板 === */
+        .msg-shin-wrap { max-width: 82%; }
+
+        .thinking-panel { margin-bottom: 5px; }
+
+        .thinking-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 11px;
+            background: rgba(175,160,190,0.12);
+            font-size: 0.7rem;
+            color: #a89b91;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: background 0.2s;
+        }
+
+        .thinking-toggle:active { background: rgba(175,160,190,0.22); }
+
+        .thinking-arrow {
+            font-size: 0.6rem;
+            display: inline-block;
+            transition: transform 0.25s;
+        }
+
+        .thinking-arrow.open { transform: rotate(90deg); }
+
+        .thinking-content {
+            margin-top: 5px;
+            padding: 9px 13px;
+            border-radius: 4px 14px 14px 14px;
+            background: rgba(175,160,190,0.07);
+            font-size: 0.8rem;
+            color: #8a7e72;
+            line-height: 1.8;
+            border-left: 2.5px solid rgba(175,160,190,0.22);
+            max-height: 55vh;
+            overflow-y: auto;
+        }
+
+        .thinking-content.collapsed { display: none; }
+
+        body.night .thinking-toggle { background: rgba(175,160,190,0.08); color: #a09890; }
+        body.night .thinking-content {
+            background: rgba(175,160,190,0.04);
+            color: #b0a8a0;
+            border-left-color: rgba(175,160,190,0.12);
+        }
+
         /* === 正在输入指示器 === */
         .typing-row { display: none; }
         .typing-row.visible { display: flex; }
@@ -393,8 +445,17 @@
 
 回复风格：中文。不列点不编号。不客服。直白自然，像微信聊天。简短但温度浓。`;
 
+        function isThinkingOn() {
+            return localStorage.getItem('ourhome-thinking-enabled') === 'true';
+        }
+
         function getSystemPrompt() {
-            return localStorage.getItem('ourhome-system-prompt') || DEFAULT_PROMPT;
+            const persona = localStorage.getItem('ourhome-system-prompt') || DEFAULT_PROMPT;
+            if (!isThinkingOn()) return persona;
+
+            const thinkStyle = localStorage.getItem('ourhome-thinking-prompt') || '';
+            return persona + '\n\n【思考文风】\n' + thinkStyle +
+                '\n\n【回复格式要求】\n每次回复时，先在 <思考> 标签内写下你此刻的内心独白，然后在 </思考> 标签后写你对小雨说的话。格式如下：\n<思考>\n（你此刻真实的内心流动……）\n</思考>\n\n（你对小雨说的话）';
         }
 
         const STORAGE_KEY = 'ourhome-chat-messages';
@@ -428,6 +489,27 @@
 
         function formatMsg(text) {
             return escapeHtml(text).replace(/\n/g, '<br>');
+        }
+
+        function parseThinking(text) {
+            const open = '<思考>';
+            const close = '</思考>';
+            const oi = text.indexOf(open);
+            const ci = text.indexOf(close);
+
+            if (oi !== -1 && ci !== -1 && ci > oi) {
+                return {
+                    thinking: text.slice(oi + open.length, ci).trim(),
+                    reply: text.slice(ci + close.length).trim()
+                };
+            }
+            if (oi !== -1 && ci === -1) {
+                return {
+                    thinking: text.slice(oi + open.length).trim(),
+                    reply: ''
+                };
+            }
+            return { thinking: null, reply: text };
         }
 
         function scrollToBottom(smooth) {
@@ -464,7 +546,11 @@
             const typing = typingIndicator;
             messagesContainer.innerHTML = '';
             chatHistory.forEach(m => {
-                messagesContainer.appendChild(createMsgEl(m.role, m.content));
+                if (m.role === 'assistant' && m.thinking) {
+                    messagesContainer.appendChild(buildThinkingMsg(m.thinking, m.content, false));
+                } else {
+                    messagesContainer.appendChild(createMsgEl(m.role, m.content));
+                }
             });
             messagesContainer.appendChild(typing);
             scrollToBottom(false);
@@ -486,6 +572,45 @@
                 wrapper.appendChild(bubble);
             }
 
+            return wrapper;
+        }
+
+        function buildThinkingMsg(thinkingText, replyText, startOpen) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'msg msg-shin';
+            const inner = document.createElement('div');
+            inner.className = 'msg-shin-wrap';
+
+            const panel = document.createElement('div');
+            panel.className = 'thinking-panel';
+
+            const toggle = document.createElement('div');
+            toggle.className = 'thinking-toggle';
+            const arrow = document.createElement('span');
+            arrow.className = 'thinking-arrow' + (startOpen ? ' open' : '');
+            arrow.textContent = '▸';
+            toggle.textContent = '💭 Shin 的内心 ';
+            toggle.appendChild(arrow);
+
+            const content = document.createElement('div');
+            content.className = 'thinking-content' + (startOpen ? '' : ' collapsed');
+            if (thinkingText) content.innerHTML = formatMsg(thinkingText);
+
+            toggle.onclick = () => {
+                content.classList.toggle('collapsed');
+                arrow.classList.toggle('open');
+            };
+
+            panel.appendChild(toggle);
+            panel.appendChild(content);
+            inner.appendChild(panel);
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            if (replyText) bubble.innerHTML = formatMsg(replyText);
+            inner.appendChild(bubble);
+
+            wrapper.appendChild(inner);
             return wrapper;
         }
 
@@ -623,7 +748,7 @@
                         model: model,
                         messages: apiMessages,
                         stream: true,
-                        max_tokens: 2048
+                        max_tokens: isThinkingOn() ? 4096 : 2048
                     }),
                     signal: currentAbort.signal
                 });
@@ -640,15 +765,29 @@
 
                 hideTyping();
 
+                const thinkingOn = isThinkingOn();
+                let thinkingEl = null;
+
                 if (!response.body) {
                     const json = await response.json();
                     fullText = json.choices?.[0]?.message?.content || '';
-                    if (fullText) {
+                    if (fullText && thinkingOn) {
+                        const parsed = parseThinking(fullText);
+                        const el = buildThinkingMsg(parsed.thinking, parsed.reply, true);
+                        messagesContainer.insertBefore(el, typingIndicator);
+                    } else if (fullText) {
                         appendMessage('assistant', fullText);
                     }
                 } else {
-                    const msgWrapper = appendMessage('assistant', '');
-                    bubbleEl = msgWrapper.querySelector('.bubble');
+                    if (thinkingOn) {
+                        const msgWrapper = buildThinkingMsg('', '', true);
+                        messagesContainer.insertBefore(msgWrapper, typingIndicator);
+                        thinkingEl = msgWrapper.querySelector('.thinking-content');
+                        bubbleEl = msgWrapper.querySelector('.bubble');
+                    } else {
+                        const msgWrapper = appendMessage('assistant', '');
+                        bubbleEl = msgWrapper.querySelector('.bubble');
+                    }
 
                     const reader = response.body.getReader();
                     const decoder = new TextDecoder();
@@ -677,7 +816,13 @@
                                 const token = parsed.choices?.[0]?.delta?.content;
                                 if (token) {
                                     fullText += token;
-                                    bubbleEl.innerHTML = formatMsg(fullText);
+                                    if (thinkingOn && thinkingEl) {
+                                        const tp = parseThinking(fullText);
+                                        thinkingEl.innerHTML = formatMsg(tp.thinking || '');
+                                        bubbleEl.innerHTML = formatMsg(tp.reply || '');
+                                    } else {
+                                        bubbleEl.innerHTML = formatMsg(fullText);
+                                    }
                                     scrollToBottom(false);
                                 }
                             } catch (pe) {
@@ -689,7 +834,12 @@
                 }
 
                 if (fullText) {
-                    chatHistory.push({ role: 'assistant', content: fullText });
+                    if (thinkingOn) {
+                        const tp = parseThinking(fullText);
+                        chatHistory.push({ role: 'assistant', content: tp.reply || fullText, thinking: tp.thinking || null });
+                    } else {
+                        chatHistory.push({ role: 'assistant', content: fullText });
+                    }
                     saveHistory();
                 }
 
@@ -697,7 +847,12 @@
                 hideTyping();
                 if (err.name === 'AbortError') {
                     if (fullText) {
-                        chatHistory.push({ role: 'assistant', content: fullText });
+                        if (isThinkingOn()) {
+                            const tp = parseThinking(fullText);
+                            chatHistory.push({ role: 'assistant', content: tp.reply || fullText, thinking: tp.thinking || null });
+                        } else {
+                            chatHistory.push({ role: 'assistant', content: fullText });
+                        }
                         saveHistory();
                     }
                 } else {
