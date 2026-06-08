@@ -895,12 +895,26 @@
             await callAPI();
         }
 
-        async function callAPI() {
-            const apiKey = localStorage.getItem('ourhome-api-key');
-            const baseUrl = (localStorage.getItem('ourhome-api-url') || 'https://aihubmix.com/v1').replace(/\/+$/, '');
-            const model = localStorage.getItem('ourhome-model') || 'claude-sonnet-4-20250514';
+        function getApiConfig() {
+            const src = localStorage.getItem('ourhome-api-source') || 'aihubmix';
+            if (src === 'openrouter') {
+                return {
+                    key: localStorage.getItem('ourhome-or-key'),
+                    url: (localStorage.getItem('ourhome-or-url') || 'https://openrouter.ai/api/v1').replace(/\/+$/, ''),
+                    model: localStorage.getItem('ourhome-or-model') || 'anthropic/claude-sonnet-4-20250514'
+                };
+            }
+            return {
+                key: localStorage.getItem('ourhome-api-key'),
+                url: (localStorage.getItem('ourhome-api-url') || 'https://aihubmix.com/v1').replace(/\/+$/, ''),
+                model: localStorage.getItem('ourhome-model') || 'claude-sonnet-4-20250514'
+            };
+        }
 
-            if (!apiKey) {
+        async function callAPI() {
+            const api = getApiConfig();
+
+            if (!api.key) {
                 appendMessage('system', '还没配置 API Key，去 Settings 设置一下~');
                 return;
             }
@@ -919,14 +933,14 @@
             let lastUsage = null;
 
             try {
-                const response = await fetch(`${baseUrl}/chat/completions`, {
+                const response = await fetch(`${api.url}/chat/completions`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
+                        'Authorization': `Bearer ${api.key}`
                     },
                     body: JSON.stringify({
-                        model: model,
+                        model: api.model,
                         messages: apiMessages,
                         stream: true,
                         max_tokens: isThinkingOn() ? 4096 : 2048,
@@ -1206,7 +1220,7 @@
         }
 
         function init() {
-            const hasKey = !!localStorage.getItem('ourhome-api-key');
+            const hasKey = !!(localStorage.getItem('ourhome-api-key') || localStorage.getItem('ourhome-or-key'));
             setupScreen.classList.toggle('hidden', hasKey);
             chatApp.classList.toggle('hidden', !hasKey);
 

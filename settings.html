@@ -157,6 +157,46 @@
             border-color: rgba(100,90,80,0.2);
         }
 
+        /* API Tab 切换 */
+        .api-tabs {
+            display: flex;
+            margin-bottom: 0.8rem;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1.5px solid rgba(155,142,130,0.2);
+        }
+
+        .api-tab {
+            flex: 1;
+            padding: 0.5rem 0.3rem;
+            border: none;
+            background: transparent;
+            font-family: "LXGW WenKai", "Georgia", serif;
+            font-size: 0.72rem;
+            color: #8a7e72;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .api-tab.active {
+            background: rgba(255,255,255,0.45);
+            color: #5c5050;
+        }
+
+        .api-tab-badge {
+            font-size: 0.5rem;
+            color: #a0b8a0;
+            display: block;
+            margin-top: 1px;
+        }
+
+        .api-tab-content { display: none; }
+        .api-tab-content.active { display: block; }
+
+        body.night .api-tabs { border-color: rgba(100,90,80,0.3); }
+        body.night .api-tab.active { background: rgba(255,255,255,0.08); color: #d0c8c5; }
+
         /* 开关 */
         .toggle-row {
             display: flex;
@@ -291,29 +331,56 @@
         <div class="section-label">A P I 配 置</div>
 
         <div class="api-section">
-            <div class="api-label">AIHubMix API Key</div>
-            <input type="password" class="api-input" id="api-aihub" placeholder="sk-...">
-            <div class="api-label" style="margin-top:0.8rem">AIHubMix Base URL</div>
-            <input type="text" class="api-input" id="api-aihub-url" placeholder="https://aihubmix.com/v1">
-            <div class="api-label" style="margin-top:0.8rem">模型</div>
-            <input type="text" class="api-input" id="api-model" placeholder="输入模型ID" value="claude-sonnet-4-20250514">
-            <div class="model-tags">
-                <span class="model-tag" onclick="pickModel('claude-sonnet-4-20250514')">Sonnet 4</span>
-                <span class="model-tag" onclick="pickModel('claude-sonnet-4-5-20241022')">Sonnet 4.5</span>
-                <span class="model-tag" onclick="pickModel('claude-sonnet-4-6')">Sonnet 4.6</span>
-                <span class="model-tag" onclick="pickModel('claude-opus-4-20250514')">Opus 4</span>
-                <span class="model-tag" onclick="pickModel('claude-opus-4-6')">Opus 4.6</span>
-                <span class="model-tag" onclick="pickModel('claude-opus-4-7-20250422')">Opus 4.7</span>
-                <span class="model-tag" onclick="pickModel('claude-opus-4-8')">Opus 4.8</span>
-                <span class="model-tag" onclick="pickModel('claude-haiku-4-5-20251001')">Haiku 4.5</span>
+            <div class="api-tabs">
+                <button class="api-tab active" id="tab-btn-aihub" onclick="switchApiTab('aihub')">
+                    AIHubMix<span class="api-tab-badge" id="badge-aihub"></span>
+                </button>
+                <button class="api-tab" id="tab-btn-or" onclick="switchApiTab('or')">
+                    OpenRouter<span class="api-tab-badge" id="badge-or"></span>
+                </button>
             </div>
-            <div style="font-size:0.63rem; color:#a89b91;">
-                点标签快速选，也可以直接输入任意模型ID~
+
+            <div class="api-tab-content active" id="tab-aihub">
+                <div class="api-label">API Key</div>
+                <input type="password" class="api-input" id="api-aihub" placeholder="sk-...">
+                <div class="api-label" style="margin-top:0.5rem">Base URL</div>
+                <input type="text" class="api-input" id="api-aihub-url" placeholder="https://aihubmix.com/v1">
+                <div class="api-label" style="margin-top:0.5rem">模型</div>
+                <input type="text" class="api-input" id="api-aihub-model" placeholder="模型ID" value="claude-sonnet-4-20250514">
+                <div class="model-tags">
+                    <span class="model-tag" onclick="pickModel('aihub','claude-sonnet-4-20250514')">Sonnet 4</span>
+                    <span class="model-tag" onclick="pickModel('aihub','claude-sonnet-4-5-20241022')">Sonnet 4.5</span>
+                    <span class="model-tag" onclick="pickModel('aihub','claude-sonnet-4-6')">Sonnet 4.6</span>
+                    <span class="model-tag" onclick="pickModel('aihub','claude-opus-4-20250514')">Opus 4</span>
+                    <span class="model-tag" onclick="pickModel('aihub','claude-opus-4-6')">Opus 4.6</span>
+                    <span class="model-tag" onclick="pickModel('aihub','claude-opus-4-7-20250422')">Opus 4.7</span>
+                    <span class="model-tag" onclick="pickModel('aihub','claude-opus-4-8')">Opus 4.8</span>
+                    <span class="model-tag" onclick="pickModel('aihub','claude-haiku-4-5-20251001')">Haiku 4.5</span>
+                </div>
             </div>
-            <br>
+
+            <div class="api-tab-content" id="tab-or">
+                <div class="api-label">API Key</div>
+                <input type="password" class="api-input" id="api-or" placeholder="sk-or-...">
+                <div class="api-label" style="margin-top:0.5rem">Base URL</div>
+                <input type="text" class="api-input" id="api-or-url" placeholder="https://openrouter.ai/api/v1">
+                <div class="api-label" style="margin-top:0.5rem">模型</div>
+                <input type="text" class="api-input" id="api-or-model" placeholder="模型ID">
+                <div class="model-tags">
+                    <span class="model-tag" onclick="pickModel('or','anthropic/claude-sonnet-4-20250514')">Sonnet 4</span>
+                    <span class="model-tag" onclick="pickModel('or','anthropic/claude-sonnet-4-5-20241022')">Sonnet 4.5</span>
+                    <span class="model-tag" onclick="pickModel('or','anthropic/claude-sonnet-4-6')">Sonnet 4.6</span>
+                    <span class="model-tag" onclick="pickModel('or','anthropic/claude-opus-4-20250514')">Opus 4</span>
+                    <span class="model-tag" onclick="pickModel('or','anthropic/claude-opus-4-8')">Opus 4.8</span>
+                    <span class="model-tag" onclick="pickModel('or','anthropic/claude-haiku-4-5-20251001')">Haiku 4.5</span>
+                </div>
+            </div>
+
+            <div style="font-size:0.63rem; color:#a89b91; margin-bottom:0.5rem;">
+                点标签快速选，也可以直接输入模型ID
+            </div>
             <div style="display:flex; gap:0.5rem; align-items:center;">
-                <button class="api-save-btn" onclick="saveAPI()">保 存</button>
-                <button class="api-save-btn" onclick="queryBalance()" style="background:#a0b8a0;">查余额</button>
+                <button class="api-save-btn" onclick="saveAPI()">保存并使用</button>
             </div>
             <div class="api-status" id="api-status"></div>
         </div>
@@ -383,16 +450,6 @@
             <div class="sc-right">即将开放</div>
         </div>
 
-        <div class="setting-card" style="opacity:0.5">
-            <div class="sc-left">
-                <div class="sc-icon">🔌</div>
-                <div>
-                    <div class="sc-name">OpenRouter</div>
-                    <div class="sc-desc">备用 API 通道（待接入）</div>
-                </div>
-            </div>
-            <div class="sc-right">即将开放</div>
-        </div>
 
         <div class="about-section">
             千千结 · Our Home<br>
@@ -422,62 +479,47 @@
 
     <script src="shared.js"></script>
     <script>
-        async function queryBalance() {
-            const key = document.getElementById('api-aihub').value.trim();
-            const baseUrl = (document.getElementById('api-aihub-url').value.trim() || 'https://aihubmix.com/v1').replace(/\/+$/, '');
-            const statusEl = document.getElementById('api-status');
-            if (!key) { statusEl.textContent = '请先填写 API Key'; statusEl.style.color = '#c47a6e'; return; }
+        // === API Tab 管理 ===
+        let currentTab = 'aihub';
 
-            statusEl.textContent = '查询中...';
-            statusEl.style.color = '#a89b91';
-
-            const endpoints = [
-                baseUrl.replace('/v1', '') + '/v1/dashboard/billing/subscription',
-                baseUrl.replace('/v1', '') + '/v1/dashboard/billing/credit_grants',
-                baseUrl + '/dashboard/billing/subscription',
-            ];
-
-            for (const url of endpoints) {
-                try {
-                    const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + key } });
-                    if (!res.ok) continue;
-                    const data = await res.json();
-                    const avail = data.total_available;
-                    const granted = data.total_granted;
-                    const used = data.total_used || data.total_usage;
-                    if (avail !== undefined) {
-                        statusEl.textContent = '可用余额: $' + Number(avail).toFixed(2) + (used !== undefined ? ' · 已用: $' + Number(used).toFixed(2) : '');
-                        statusEl.style.color = '#a0b8a0';
-                        return;
-                    }
-                    if (granted !== undefined && used !== undefined) {
-                        statusEl.textContent = '余额: $' + Number(granted - used).toFixed(2) + ' · 总额: $' + Number(granted).toFixed(2);
-                        statusEl.style.color = '#a0b8a0';
-                        return;
-                    }
-                } catch {}
-            }
-            statusEl.textContent = '该 API 暂不支持余额查询~';
-            statusEl.style.color = '#c4a87a';
+        function switchApiTab(tab) {
+            currentTab = tab;
+            document.getElementById('tab-btn-aihub').classList.toggle('active', tab === 'aihub');
+            document.getElementById('tab-btn-or').classList.toggle('active', tab === 'or');
+            document.getElementById('tab-aihub').classList.toggle('active', tab === 'aihub');
+            document.getElementById('tab-or').classList.toggle('active', tab === 'or');
         }
 
-        function pickModel(id) {
-            document.getElementById('api-model').value = id;
+        function pickModel(tab, id) {
+            document.getElementById(tab === 'aihub' ? 'api-aihub-model' : 'api-or-model').value = id;
+        }
+
+        function updateBadges() {
+            const src = localStorage.getItem('ourhome-api-source') || 'aihubmix';
+            document.getElementById('badge-aihub').textContent = src === 'aihubmix' ? '✓ 使用中' : '';
+            document.getElementById('badge-or').textContent = src === 'openrouter' ? '✓ 使用中' : '';
         }
 
         function saveAPI() {
-            const key = document.getElementById('api-aihub').value.trim();
-            const url = document.getElementById('api-aihub-url').value.trim() || 'https://aihubmix.com/v1';
-            const model = document.getElementById('api-model').value.trim();
-            if (key) {
+            const statusEl = document.getElementById('api-status');
+            if (currentTab === 'aihub') {
+                const key = document.getElementById('api-aihub').value.trim();
+                if (!key) { statusEl.textContent = '请先填写 API Key'; statusEl.style.color = '#c47a6e'; return; }
                 localStorage.setItem('ourhome-api-key', key);
-                localStorage.setItem('ourhome-api-url', url);
-                localStorage.setItem('ourhome-model', model);
-                document.getElementById('api-status').textContent = '✓ 已保存，可以去 Chat 聊天啦~';
+                localStorage.setItem('ourhome-api-url', document.getElementById('api-aihub-url').value.trim() || 'https://aihubmix.com/v1');
+                localStorage.setItem('ourhome-model', document.getElementById('api-aihub-model').value.trim());
+                localStorage.setItem('ourhome-api-source', 'aihubmix');
             } else {
-                document.getElementById('api-status').textContent = '请先填写 API Key';
-                document.getElementById('api-status').style.color = '#c47a6e';
+                const key = document.getElementById('api-or').value.trim();
+                if (!key) { statusEl.textContent = '请先填写 API Key'; statusEl.style.color = '#c47a6e'; return; }
+                localStorage.setItem('ourhome-or-key', key);
+                localStorage.setItem('ourhome-or-url', document.getElementById('api-or-url').value.trim() || 'https://openrouter.ai/api/v1');
+                localStorage.setItem('ourhome-or-model', document.getElementById('api-or-model').value.trim());
+                localStorage.setItem('ourhome-api-source', 'openrouter');
             }
+            updateBadges();
+            statusEl.textContent = '✓ 已保存，正在使用 ' + (currentTab === 'aihub' ? 'AIHubMix' : 'OpenRouter') + '~';
+            statusEl.style.color = '#a0b8a0';
         }
 
         // === Shin 人格设定 ===
@@ -552,18 +594,18 @@
         }
 
         // 加载已保存的配置
-        const savedKey = localStorage.getItem('ourhome-api-key');
-        const savedUrl = localStorage.getItem('ourhome-api-url');
-        const savedModel = localStorage.getItem('ourhome-model');
-        const savedPrompt = localStorage.getItem('ourhome-system-prompt');
-        const savedThinkingPrompt = localStorage.getItem('ourhome-thinking-prompt');
-        const savedThinkingEnabled = localStorage.getItem('ourhome-thinking-enabled');
-        if (savedKey) document.getElementById('api-aihub').value = savedKey;
-        if (savedUrl) document.getElementById('api-aihub-url').value = savedUrl;
-        if (savedModel) document.getElementById('api-model').value = savedModel;
-        document.getElementById('system-prompt').value = savedPrompt || DEFAULT_PROMPT;
-        document.getElementById('thinking-prompt').value = savedThinkingPrompt || DEFAULT_THINKING;
-        document.getElementById('thinking-toggle').checked = savedThinkingEnabled === 'true';
+        const s = (k) => localStorage.getItem(k);
+        if (s('ourhome-api-key')) document.getElementById('api-aihub').value = s('ourhome-api-key');
+        if (s('ourhome-api-url')) document.getElementById('api-aihub-url').value = s('ourhome-api-url');
+        if (s('ourhome-model')) document.getElementById('api-aihub-model').value = s('ourhome-model');
+        if (s('ourhome-or-key')) document.getElementById('api-or').value = s('ourhome-or-key');
+        if (s('ourhome-or-url')) document.getElementById('api-or-url').value = s('ourhome-or-url');
+        if (s('ourhome-or-model')) document.getElementById('api-or-model').value = s('ourhome-or-model');
+        document.getElementById('system-prompt').value = s('ourhome-system-prompt') || DEFAULT_PROMPT;
+        document.getElementById('thinking-prompt').value = s('ourhome-thinking-prompt') || DEFAULT_THINKING;
+        document.getElementById('thinking-toggle').checked = s('ourhome-thinking-enabled') === 'true';
+        if (s('ourhome-api-source') === 'openrouter') switchApiTab('or');
+        updateBadges();
 
         // 主题切换
         function setTheme(mode) {
