@@ -435,10 +435,10 @@
 
         /* === 消息操作 === */
         .msg-more {
-            background: rgba(155,142,130,0.08);
+            background: rgba(155,142,130,0.12);
             border: none;
-            color: #a89b91;
-            font-size: 0.8rem;
+            color: #8a7e72;
+            font-size: 0.85rem;
             padding: 4px 5px;
             cursor: pointer;
             align-self: center;
@@ -447,8 +447,8 @@
             line-height: 1;
             transition: background 0.15s;
         }
-        .msg-more:active { background: rgba(155,142,130,0.2); }
-        body.night .msg-more { color: #8a8280; background: rgba(255,255,255,0.04); }
+        .msg-more:active { background: rgba(155,142,130,0.25); }
+        body.night .msg-more { color: #a09890; background: rgba(255,255,255,0.06); }
 
         .msg-popup {
             display: flex;
@@ -949,7 +949,7 @@
                     el = createMsgEl(m.role, m.content);
                 }
                 if (m.role === 'assistant' && m.tokens) {
-                    addTokenMeta(el.querySelector('.msg-shin-wrap') || el, m.tokens);
+                    addTokenMeta(el.querySelector('.bubble'), m.tokens);
                 }
                 if (m.content && m.role !== 'system') addMsgActions(el, m.content, m.role === 'user', m.time);
                 messagesContainer.appendChild(el);
@@ -1340,7 +1340,7 @@
 
                     if (lastUsage) {
                         const prev = typingIndicator.previousElementSibling;
-                        if (prev) addTokenMeta(prev.querySelector('.msg-shin-wrap') || prev, lastUsage);
+                        if (prev) addTokenMeta(prev.querySelector('.bubble'), lastUsage);
                     }
                     addRegenBtn();
                 }
