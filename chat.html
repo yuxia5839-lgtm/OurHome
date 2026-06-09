@@ -396,8 +396,8 @@
             100% { opacity: 0; }
         }
 
-        /* === 对话管理面板 === */
-        .conv-overlay {
+        /* === 侧边栏 === */
+        .sidebar-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.25);
@@ -406,29 +406,48 @@
             transition: opacity 0.25s;
             pointer-events: none;
         }
-        .conv-overlay.show { opacity: 1; pointer-events: auto; }
+        .sidebar-overlay.show { opacity: 1; pointer-events: auto; }
 
-        .conv-panel {
+        .sidebar {
             position: fixed;
-            bottom: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 280px;
+            max-width: 80vw;
             background: #f0e8e2;
-            border-radius: 18px 18px 0 0;
-            padding: 1.2rem 1rem calc(1.2rem + env(safe-area-inset-bottom));
             z-index: 301;
-            transform: translateY(100%);
+            transform: translateX(-100%);
             transition: transform 0.3s ease;
-            max-height: 70vh;
             overflow-y: auto;
+            padding: 1.2rem 0.8rem;
+            padding-top: calc(1.2rem + env(safe-area-inset-top));
         }
-        .conv-overlay.show .conv-panel { transform: translateY(0); }
+        .sidebar-overlay.show .sidebar { transform: translateX(0); }
 
-        .conv-panel-title {
-            font-size: 0.85rem;
+        .sidebar-title {
+            font-size: 0.9rem;
             color: #6d5e52;
-            text-align: center;
-            margin-bottom: 1rem;
             letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            padding: 0 0.2rem;
         }
+
+        /* === 消息编辑 === */
+        .msg-edit-btn {
+            background: none;
+            border: none;
+            color: #c4b5a8;
+            font-size: 0.6rem;
+            cursor: pointer;
+            padding: 3px;
+            align-self: center;
+            flex-shrink: 0;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .msg-edit-btn:active { opacity: 1; }
+        body.night .msg-edit-btn { color: #6a6260; }
 
         .conv-card {
             display: flex;
@@ -498,7 +517,7 @@
         }
         .conv-create-btn:active { transform: scale(0.95); }
 
-        body.night .conv-panel { background: #302e38; }
+        body.night .sidebar { background: #302e38; }
         body.night .conv-card { background: rgba(255,255,255,0.06); }
         body.night .conv-card.active { background: rgba(184,165,160,0.08); border-color: #6a5550; }
         body.night .conv-name { color: #d0c8c5; }
@@ -596,14 +615,14 @@
         </div>
     </div>
 
-    <!-- 对话管理面板 -->
-    <div class="conv-overlay" id="conv-overlay" onclick="if(event.target===this)this.classList.remove('show')">
-        <div class="conv-panel">
-            <div class="conv-panel-title">对话管理</div>
+    <!-- 侧边栏 -->
+    <div class="sidebar-overlay" id="conv-overlay" onclick="if(event.target===this)this.classList.remove('show')">
+        <div class="sidebar">
+            <div class="sidebar-title">对话管理</div>
             <div id="conv-list"></div>
-            <div class="conv-divider">新 建 R P</div>
+            <div class="conv-divider" style="margin-top:0.8rem;">新 建 R P</div>
             <input type="text" class="conv-input" id="rp-name-input" placeholder="场景名称，如「星空下的告白」">
-            <textarea class="conv-input conv-textarea" id="rp-prompt-input" placeholder="场景描述...&#10;给 Shin 一个情境，比如「我们躺在草地上看星空，夏天的晚风很温柔」"></textarea>
+            <textarea class="conv-input conv-textarea" id="rp-prompt-input" placeholder="场景描述...&#10;如「我们躺在草地上看星空」"></textarea>
             <button class="conv-create-btn" onclick="createRP()">创建场景</button>
         </div>
     </div>
@@ -844,6 +863,13 @@
                 if (m.role === 'assistant' && m.tokens) {
                     addTokenMeta(el.querySelector('.msg-shin-wrap') || el, m.tokens);
                 }
+                if (m.role === 'user' && m.time) {
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'msg-edit-btn';
+                    editBtn.textContent = '✏️';
+                    editBtn.onclick = (e) => { e.stopPropagation(); editMessage(m.time); };
+                    el.insertBefore(editBtn, el.firstChild);
+                }
                 const bubble = el.querySelector('.bubble');
                 if (bubble && m.content) addCopyHandler(bubble, m.content);
                 messagesContainer.appendChild(el);
@@ -943,6 +969,20 @@
             row.innerHTML = '<button class="regen-btn" id="regen-btn">🔄 重新生成</button>';
             messagesContainer.insertBefore(row, typingIndicator);
             document.getElementById('regen-btn').onclick = regenerate;
+        }
+
+        function editMessage(time) {
+            const idx = chatHistory.findIndex(m => m.time === time && m.role === 'user');
+            if (idx === -1) return;
+            removeRegenBtn();
+            msgInput.value = chatHistory[idx].content;
+            msgInput.style.height = 'auto';
+            msgInput.style.height = Math.min(msgInput.scrollHeight, 120) + 'px';
+            sendBtn.disabled = false;
+            chatHistory = chatHistory.slice(0, idx);
+            saveHistory();
+            renderAllMessages();
+            msgInput.focus();
         }
 
         async function regenerate() {
@@ -1048,7 +1088,12 @@
             maybeInsertTimeSep(now);
             chatHistory.push({ role: 'user', content: text, time: now });
             saveHistory();
-            appendMessage('user', text);
+            const userEl = appendMessage('user', text);
+            const editBtn = document.createElement('button');
+            editBtn.className = 'msg-edit-btn';
+            editBtn.textContent = '✏️';
+            editBtn.onclick = () => editMessage(now);
+            userEl.insertBefore(editBtn, userEl.firstChild);
 
             await callAPI();
         }
@@ -1414,6 +1459,16 @@
         }
 
         document.getElementById('scene-btn').addEventListener('click', openConvPanel);
+
+        // 左边缘右滑打开侧边栏
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            if (touchStartX < 30 && dx > 80) openConvPanel();
+        });
 
         // --- 初始化 ---
         function pickGreeting() {
