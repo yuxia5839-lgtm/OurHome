@@ -449,6 +449,29 @@
         .msg-edit-btn:active { opacity: 1; }
         body.night .msg-edit-btn { color: #6a6260; }
 
+        .edit-bar {
+            display: none;
+            flex: 0 0 auto;
+            padding: 5px 14px;
+            background: rgba(175,160,190,0.08);
+            font-size: 0.68rem;
+            color: #a89b91;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .edit-bar.active { display: flex; }
+        .edit-cancel {
+            background: none;
+            border: none;
+            color: #c47a6e;
+            font-size: 0.68rem;
+            cursor: pointer;
+            font-family: "LXGW WenKai", "Georgia", serif;
+            padding: 2px 8px;
+        }
+        body.night .edit-bar { background: rgba(175,160,190,0.04); }
+        body.night .edit-cancel { color: #a06a62; }
+
         .conv-card {
             display: flex;
             align-items: center;
@@ -607,6 +630,10 @@
             </div>
         </div>
 
+        <div class="edit-bar" id="edit-bar">
+            <span>✏️ 编辑中 · 发送后回溯到此处</span>
+            <button class="edit-cancel" onclick="cancelEdit()">取消</button>
+        </div>
         <div class="chat-input-bar" id="input-bar">
             <textarea id="msg-input" rows="1" placeholder="说点什么..."></textarea>
             <button class="send-btn" id="send-btn" disabled>
@@ -971,18 +998,26 @@
             document.getElementById('regen-btn').onclick = regenerate;
         }
 
+        let editingAt = null;
+
         function editMessage(time) {
             const idx = chatHistory.findIndex(m => m.time === time && m.role === 'user');
             if (idx === -1) return;
-            removeRegenBtn();
+            editingAt = idx;
             msgInput.value = chatHistory[idx].content;
             msgInput.style.height = 'auto';
             msgInput.style.height = Math.min(msgInput.scrollHeight, 120) + 'px';
             sendBtn.disabled = false;
-            chatHistory = chatHistory.slice(0, idx);
-            saveHistory();
-            renderAllMessages();
+            document.getElementById('edit-bar').classList.add('active');
             msgInput.focus();
+        }
+
+        function cancelEdit() {
+            editingAt = null;
+            msgInput.value = '';
+            msgInput.style.height = 'auto';
+            sendBtn.disabled = true;
+            document.getElementById('edit-bar').classList.remove('active');
         }
 
         async function regenerate() {
@@ -1082,6 +1117,14 @@
 
             msgInput.value = '';
             msgInput.style.height = 'auto';
+
+            if (editingAt !== null) {
+                chatHistory = chatHistory.slice(0, editingAt);
+                editingAt = null;
+                document.getElementById('edit-bar').classList.remove('active');
+                saveHistory();
+                renderAllMessages();
+            }
 
             removeRegenBtn();
             const now = Date.now();
