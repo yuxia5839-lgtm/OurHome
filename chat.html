@@ -435,21 +435,20 @@
 
         /* === 消息操作 === */
         .msg-more {
-            background: none;
+            background: rgba(155,142,130,0.08);
             border: none;
-            color: #d0c5bb;
-            font-size: 0.75rem;
-            padding: 2px 3px;
+            color: #a89b91;
+            font-size: 0.8rem;
+            padding: 4px 5px;
             cursor: pointer;
-            align-self: flex-end;
+            align-self: center;
             flex-shrink: 0;
-            opacity: 0.3;
+            border-radius: 8px;
             line-height: 1;
-            letter-spacing: -1px;
-            transition: opacity 0.15s;
+            transition: background 0.15s;
         }
-        .msg-more:active { opacity: 0.7; }
-        body.night .msg-more { color: #6a6260; }
+        .msg-more:active { background: rgba(155,142,130,0.2); }
+        body.night .msg-more { color: #8a8280; background: rgba(255,255,255,0.04); }
 
         .msg-popup {
             display: flex;
