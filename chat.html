@@ -433,23 +433,7 @@
             padding: 0 0.2rem;
         }
 
-        /* === 消息操作 === */
-        .msg-more {
-            background: rgba(155,142,130,0.12);
-            border: none;
-            color: #8a7e72;
-            font-size: 0.85rem;
-            padding: 4px 5px;
-            cursor: pointer;
-            align-self: center;
-            flex-shrink: 0;
-            border-radius: 8px;
-            line-height: 1;
-            transition: background 0.15s;
-        }
-        .msg-more:active { background: rgba(155,142,130,0.25); }
-        body.night .msg-more { color: #a09890; background: rgba(255,255,255,0.06); }
-
+        /* === 消息操作菜单 === */
         .msg-popup {
             display: flex;
             gap: 3px;
@@ -826,18 +810,22 @@
         }
 
         function addMsgActions(msgEl, content, isUser, time) {
-            const more = document.createElement('button');
-            more.className = 'msg-more';
-            more.textContent = '⋯';
-            more.onclick = (e) => {
-                e.stopPropagation();
-                showMsgPopup(msgEl, content, isUser, time);
-            };
-            if (isUser) {
-                msgEl.insertBefore(more, msgEl.firstChild);
-            } else {
-                msgEl.appendChild(more);
-            }
+            const bubble = msgEl.querySelector('.bubble');
+            if (!bubble) return;
+            let sx, sy, st;
+            bubble.addEventListener('touchstart', (e) => {
+                sx = e.touches[0].clientX;
+                sy = e.touches[0].clientY;
+                st = Date.now();
+            }, { passive: true });
+            bubble.addEventListener('touchend', (e) => {
+                if (Date.now() - st < 300 && Math.abs(e.changedTouches[0].clientX - sx) < 10 && Math.abs(e.changedTouches[0].clientY - sy) < 10) {
+                    showMsgPopup(msgEl, content, isUser, time);
+                }
+            });
+            bubble.addEventListener('click', (e) => {
+                if (!('ontouchstart' in window)) showMsgPopup(msgEl, content, isUser, time);
+            });
         }
 
         function showMsgPopup(msgEl, content, isUser, time) {
@@ -922,7 +910,7 @@
 
         // --- 渲染 ---
         function addTokenMeta(parent, tokens) {
-            if (!tokens) return;
+            if (!tokens || !parent) return;
             const meta = document.createElement('div');
             meta.className = 'msg-meta';
             meta.textContent = `↗${tokens.prompt_tokens} ↙${tokens.completion_tokens}`;
@@ -1338,10 +1326,7 @@
                     chatHistory.push(entry);
                     saveHistory();
 
-                    if (lastUsage) {
-                        const prev = typingIndicator.previousElementSibling;
-                        if (prev) addTokenMeta(prev.querySelector('.bubble'), lastUsage);
-                    }
+                    if (lastUsage) addTokenMeta(bubbleEl, lastUsage);
                     addRegenBtn();
                 }
 
