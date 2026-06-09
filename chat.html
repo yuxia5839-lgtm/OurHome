@@ -433,11 +433,28 @@
             padding: 0 0.2rem;
         }
 
-        /* === 消息操作菜单 === */
+        /* === 消息操作 === */
+        .msg-more {
+            background: none;
+            border: none;
+            color: #d0c5bb;
+            font-size: 0.75rem;
+            padding: 2px 3px;
+            cursor: pointer;
+            align-self: flex-end;
+            flex-shrink: 0;
+            opacity: 0.3;
+            line-height: 1;
+            letter-spacing: -1px;
+            transition: opacity 0.15s;
+        }
+        .msg-more:active { opacity: 0.7; }
+        body.night .msg-more { color: #6a6260; }
+
         .msg-popup {
             display: flex;
             gap: 3px;
-            margin-top: 5px;
+            margin-top: 4px;
             animation: msgIn 0.15s ease-out;
         }
         .popup-btn {
@@ -809,16 +826,22 @@
             setTimeout(() => t.remove(), 1500);
         }
 
-        function addMsgActions(el, content, isUser, time) {
-            let timer;
-            el.addEventListener('touchstart', () => {
-                timer = setTimeout(() => showMsgPopup(el, content, isUser, time), 500);
-            }, { passive: true });
-            el.addEventListener('touchend', () => clearTimeout(timer));
-            el.addEventListener('touchmove', () => clearTimeout(timer));
+        function addMsgActions(msgEl, content, isUser, time) {
+            const more = document.createElement('button');
+            more.className = 'msg-more';
+            more.textContent = '⋯';
+            more.onclick = (e) => {
+                e.stopPropagation();
+                showMsgPopup(msgEl, content, isUser, time);
+            };
+            if (isUser) {
+                msgEl.insertBefore(more, msgEl.firstChild);
+            } else {
+                msgEl.appendChild(more);
+            }
         }
 
-        function showMsgPopup(bubble, content, isUser, time) {
+        function showMsgPopup(msgEl, content, isUser, time) {
             dismissPopup();
             const popup = document.createElement('div');
             popup.className = 'msg-popup';
@@ -841,13 +864,14 @@
             };
             popup.appendChild(copyBtn);
 
-            bubble.parentElement.appendChild(popup);
+            msgEl.appendChild(popup);
             setTimeout(dismissPopup, 4000);
-
-            const handler = (e) => {
-                if (!popup.contains(e.target)) { dismissPopup(); document.removeEventListener('touchstart', handler); }
-            };
-            setTimeout(() => document.addEventListener('touchstart', handler), 10);
+            setTimeout(() => {
+                const handler = (e) => {
+                    if (!popup.contains(e.target) && e.target !== popup) { dismissPopup(); document.removeEventListener('touchstart', handler); }
+                };
+                document.addEventListener('touchstart', handler);
+            }, 50);
         }
 
         function dismissPopup() {
@@ -928,8 +952,7 @@
                 if (m.role === 'assistant' && m.tokens) {
                     addTokenMeta(el.querySelector('.msg-shin-wrap') || el, m.tokens);
                 }
-                const bubble = el.querySelector('.bubble');
-                if (bubble && m.content) addMsgActions(bubble, m.content, m.role === 'user', m.time);
+                if (m.content && m.role !== 'system') addMsgActions(el, m.content, m.role === 'user', m.time);
                 messagesContainer.appendChild(el);
             });
             messagesContainer.appendChild(typing);
@@ -1163,8 +1186,7 @@
             chatHistory.push({ role: 'user', content: text, time: now });
             saveHistory();
             const userEl = appendMessage('user', text);
-            const bubble = userEl.querySelector('.bubble');
-            if (bubble) addMsgActions(bubble, text, true, now);
+            addMsgActions(userEl, text, true, now);
 
             await callAPI();
         }
