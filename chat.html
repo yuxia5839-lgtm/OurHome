@@ -433,21 +433,24 @@
             padding: 0 0.2rem;
         }
 
-        /* === 消息编辑 === */
-        .msg-edit-btn {
-            background: none;
-            border: none;
-            color: #c4b5a8;
-            font-size: 0.6rem;
-            cursor: pointer;
-            padding: 3px;
-            align-self: center;
-            flex-shrink: 0;
-            opacity: 0.5;
-            transition: opacity 0.2s;
+        /* === 消息操作菜单 === */
+        .msg-popup {
+            display: flex;
+            gap: 3px;
+            margin-top: 5px;
+            animation: msgIn 0.15s ease-out;
         }
-        .msg-edit-btn:active { opacity: 1; }
-        body.night .msg-edit-btn { color: #6a6260; }
+        .popup-btn {
+            background: rgba(60,55,50,0.8);
+            border: none;
+            color: #fff;
+            font-size: 0.63rem;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-family: "LXGW WenKai", "Georgia", serif;
+            border-radius: 8px;
+        }
+        .popup-btn:active { background: rgba(60,55,50,0.95); }
 
         .edit-bar {
             display: none;
@@ -806,15 +809,50 @@
             setTimeout(() => t.remove(), 1500);
         }
 
-        function addCopyHandler(el, text) {
+        function addMsgActions(el, content, isUser, time) {
             let timer;
             el.addEventListener('touchstart', () => {
-                timer = setTimeout(() => {
-                    navigator.clipboard.writeText(text).then(() => showToast('已复制~')).catch(() => {});
-                }, 600);
+                timer = setTimeout(() => showMsgPopup(el, content, isUser, time), 500);
             }, { passive: true });
             el.addEventListener('touchend', () => clearTimeout(timer));
             el.addEventListener('touchmove', () => clearTimeout(timer));
+        }
+
+        function showMsgPopup(bubble, content, isUser, time) {
+            dismissPopup();
+            const popup = document.createElement('div');
+            popup.className = 'msg-popup';
+            popup.id = 'msg-popup';
+
+            if (isUser && time) {
+                const editBtn = document.createElement('button');
+                editBtn.className = 'popup-btn';
+                editBtn.textContent = '✏️ 编辑';
+                editBtn.onclick = () => { dismissPopup(); editMessage(time); };
+                popup.appendChild(editBtn);
+            }
+
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'popup-btn';
+            copyBtn.textContent = '📋 复制';
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(content).then(() => showToast('已复制~')).catch(() => {});
+                dismissPopup();
+            };
+            popup.appendChild(copyBtn);
+
+            bubble.parentElement.appendChild(popup);
+            setTimeout(dismissPopup, 4000);
+
+            const handler = (e) => {
+                if (!popup.contains(e.target)) { dismissPopup(); document.removeEventListener('touchstart', handler); }
+            };
+            setTimeout(() => document.addEventListener('touchstart', handler), 10);
+        }
+
+        function dismissPopup() {
+            const p = document.getElementById('msg-popup');
+            if (p) p.remove();
         }
 
         const SHIN_GREETINGS = {
@@ -890,15 +928,8 @@
                 if (m.role === 'assistant' && m.tokens) {
                     addTokenMeta(el.querySelector('.msg-shin-wrap') || el, m.tokens);
                 }
-                if (m.role === 'user' && m.time) {
-                    const editBtn = document.createElement('button');
-                    editBtn.className = 'msg-edit-btn';
-                    editBtn.textContent = '✏️';
-                    editBtn.onclick = (e) => { e.stopPropagation(); editMessage(m.time); };
-                    el.insertBefore(editBtn, el.firstChild);
-                }
                 const bubble = el.querySelector('.bubble');
-                if (bubble && m.content) addCopyHandler(bubble, m.content);
+                if (bubble && m.content) addMsgActions(bubble, m.content, m.role === 'user', m.time);
                 messagesContainer.appendChild(el);
             });
             messagesContainer.appendChild(typing);
@@ -1132,11 +1163,8 @@
             chatHistory.push({ role: 'user', content: text, time: now });
             saveHistory();
             const userEl = appendMessage('user', text);
-            const editBtn = document.createElement('button');
-            editBtn.className = 'msg-edit-btn';
-            editBtn.textContent = '✏️';
-            editBtn.onclick = () => editMessage(now);
-            userEl.insertBefore(editBtn, userEl.firstChild);
+            const bubble = userEl.querySelector('.bubble');
+            if (bubble) addMsgActions(bubble, text, true, now);
 
             await callAPI();
         }
