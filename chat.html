@@ -341,6 +341,36 @@
         }
         body.night .time-label { color: #7a7270; background: rgba(184,165,160,0.05); }
 
+        /* === 重新生成 === */
+        .regen-row { justify-content: flex-start; padding-left: 4px; }
+        .regen-btn {
+            background: none;
+            border: 1px solid rgba(155,142,130,0.15);
+            color: #b8ad9f;
+            font-size: 0.65rem;
+            cursor: pointer;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-family: "LXGW WenKai", "Georgia", serif;
+            transition: all 0.2s;
+        }
+        .regen-btn:active { background: rgba(184,165,160,0.15); }
+        body.night .regen-btn { color: #7a7270; border-color: rgba(100,90,80,0.2); }
+
+        /* === 对话管理按钮 === */
+        .conv-action {
+            width: 26px; height: 26px;
+            border: none; background: none;
+            color: #c4b5a8;
+            font-size: 0.7rem;
+            cursor: pointer;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .conv-action:active { background: rgba(184,165,160,0.15); }
+        body.night .conv-action { color: #7a7270; }
+
         /* === Toast 提示 === */
         .toast {
             position: fixed;
@@ -540,7 +570,7 @@
             <div class="header-actions">
                 <button class="header-btn" id="scene-btn">🎭</button>
                 <button class="header-btn" id="export-btn">导出</button>
-                <button class="header-btn" id="new-chat-btn">新对话</button>
+                <button class="header-btn" id="clear-btn">清空</button>
             </div>
         </div>
 
@@ -673,7 +703,7 @@
         const msgInput = document.getElementById('msg-input');
         const sendBtn = document.getElementById('send-btn');
         const sendIcon = document.getElementById('send-icon');
-        const newChatBtn = document.getElementById('new-chat-btn');
+        const clearBtn = document.getElementById('clear-btn');
         const headerStatus = document.getElementById('header-status');
 
         // --- 工具函数 ---
@@ -878,11 +908,50 @@
             return wrapper;
         }
 
+        function maybeInsertTimeSep(time) {
+            let lastTime = 0;
+            for (let i = chatHistory.length - 1; i >= 0; i--) {
+                if (chatHistory[i].time) { lastTime = chatHistory[i].time; break; }
+            }
+            if (!lastTime || time - lastTime > 5 * 60 * 1000) {
+                const sep = document.createElement('div');
+                sep.className = 'msg msg-time';
+                sep.innerHTML = '<span class="time-label">' + formatTime(time) + '</span>';
+                messagesContainer.insertBefore(sep, typingIndicator);
+            }
+        }
+
         function appendMessage(role, content) {
             const el = createMsgEl(role, content);
             messagesContainer.insertBefore(el, typingIndicator);
             scrollToBottom(true);
             return el;
+        }
+
+        function removeRegenBtn() {
+            const old = document.getElementById('regen-row');
+            if (old) old.remove();
+        }
+
+        function addRegenBtn() {
+            removeRegenBtn();
+            const row = document.createElement('div');
+            row.className = 'msg regen-row';
+            row.id = 'regen-row';
+            row.innerHTML = '<button class="regen-btn" id="regen-btn">🔄 重新生成</button>';
+            messagesContainer.insertBefore(row, typingIndicator);
+            document.getElementById('regen-btn').onclick = regenerate;
+        }
+
+        async function regenerate() {
+            if (isStreaming) return;
+            removeRegenBtn();
+            while (chatHistory.length && chatHistory[chatHistory.length - 1].role === 'assistant') {
+                chatHistory.pop();
+            }
+            saveHistory();
+            renderAllMessages();
+            await callAPI();
         }
 
         function showTyping() {
@@ -928,9 +997,9 @@
             }
         });
 
-        newChatBtn.addEventListener('click', () => {
+        document.getElementById('clear-btn').addEventListener('click', () => {
             if (chatHistory.length <= 1) return;
-            if (confirm('开始新对话？当前记录会被清空~')) {
+            if (confirm('清空当前对话记录？')) {
                 chatHistory = [];
                 saveHistory();
                 initChat();
@@ -972,7 +1041,10 @@
             msgInput.value = '';
             msgInput.style.height = 'auto';
 
-            chatHistory.push({ role: 'user', content: text, time: Date.now() });
+            removeRegenBtn();
+            const now = Date.now();
+            maybeInsertTimeSep(now);
+            chatHistory.push({ role: 'user', content: text, time: now });
             saveHistory();
             appendMessage('user', text);
 
@@ -1128,9 +1200,10 @@
                     saveHistory();
 
                     if (lastUsage) {
-                        const lastMsg = messagesContainer.querySelector('.msg:last-of-type') || typingIndicator.previousElementSibling;
-                        if (lastMsg) addTokenMeta(lastMsg.querySelector('.msg-shin-wrap') || lastMsg, lastUsage);
+                        const prev = typingIndicator.previousElementSibling;
+                        if (prev) addTokenMeta(prev.querySelector('.msg-shin-wrap') || prev, lastUsage);
                     }
+                    addRegenBtn();
                 }
 
             } catch (err) {
@@ -1187,6 +1260,13 @@
         const convOverlay = document.getElementById('conv-overlay');
         const convList = document.getElementById('conv-list');
 
+        function ensureMainConv() {
+            if (!conversations.find(c => c.id === 'main')) {
+                conversations.unshift({ id: 'main', name: '日常聊天', type: 'chat', updatedAt: Date.now() });
+                saveConversations();
+            }
+        }
+
         function openConvPanel() {
             renderConvList();
             convOverlay.classList.add('show');
@@ -1194,45 +1274,60 @@
 
         function renderConvList() {
             convList.innerHTML = '';
-            const mainCard = buildConvCard('main', '💬', '主对话', getMainPreview(), false);
-            convList.appendChild(mainCard);
+
+            const chatLabel = document.createElement('div');
+            chatLabel.className = 'conv-divider';
+            chatLabel.textContent = '💬 对 话';
+            convList.appendChild(chatLabel);
+
+            const chats = conversations.filter(c => c.type === 'chat').sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+            chats.forEach(c => convList.appendChild(buildConvCard(c)));
+
+            const newChat = document.createElement('div');
+            newChat.className = 'conv-card';
+            newChat.style.justifyContent = 'center';
+            newChat.style.opacity = '0.65';
+            newChat.innerHTML = '<span style="font-size:0.78rem; color:#a89b91;">+ 新建对话</span>';
+            newChat.onclick = createChat;
+            convList.appendChild(newChat);
+
+            const rpLabel = document.createElement('div');
+            rpLabel.className = 'conv-divider';
+            rpLabel.textContent = '🎭 R P 场 景';
+            convList.appendChild(rpLabel);
 
             const rps = conversations.filter(c => c.type === 'rp').sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-            if (rps.length) {
-                const div = document.createElement('div');
-                div.className = 'conv-divider';
-                div.textContent = 'R P 场 景';
-                convList.appendChild(div);
-                rps.forEach(c => {
-                    convList.appendChild(buildConvCard(c.id, '🎭', c.name, c.lastMsg || '', true));
-                });
+            rps.forEach(c => convList.appendChild(buildConvCard(c)));
+        }
+
+        function getConvPreview(conv) {
+            if (conv.id === activeConvId && chatHistory.length) {
+                return (chatHistory[chatHistory.length - 1].content || '').slice(0, 40);
             }
+            return conv.lastMsg || '';
         }
 
-        function getMainPreview() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                const msgs = raw ? JSON.parse(raw) : [];
-                const last = msgs[msgs.length - 1];
-                return last ? (last.content || '').slice(0, 40) : '';
-            } catch { return ''; }
-        }
-
-        function buildConvCard(id, icon, name, preview, canDelete) {
+        function buildConvCard(conv) {
             const card = document.createElement('div');
-            card.className = 'conv-card' + (activeConvId === id ? ' active' : '');
+            card.className = 'conv-card' + (activeConvId === conv.id ? ' active' : '');
+            const icon = conv.type === 'rp' ? '🎭' : '💬';
             card.innerHTML = '<div class="conv-icon">' + icon + '</div>' +
-                '<div class="conv-info"><div class="conv-name">' + escapeHtml(name) + '</div>' +
-                '<div class="conv-preview">' + escapeHtml(preview) + '</div></div>';
-            card.onclick = () => switchConv(id);
+                '<div class="conv-info"><div class="conv-name">' + escapeHtml(conv.name) + '</div>' +
+                '<div class="conv-preview">' + escapeHtml(getConvPreview(conv)) + '</div></div>';
+            card.onclick = () => switchConv(conv.id);
 
-            if (canDelete) {
-                const del = document.createElement('button');
-                del.className = 'conv-delete';
-                del.textContent = '×';
-                del.onclick = (e) => { e.stopPropagation(); deleteRP(id); };
-                card.appendChild(del);
-            }
+            const rename = document.createElement('button');
+            rename.className = 'conv-action';
+            rename.textContent = '✏️';
+            rename.onclick = (e) => { e.stopPropagation(); renameConv(conv.id); };
+            card.appendChild(rename);
+
+            const del = document.createElement('button');
+            del.className = 'conv-delete';
+            del.textContent = '×';
+            del.onclick = (e) => { e.stopPropagation(); deleteConv(conv.id); };
+            card.appendChild(del);
+
             return card;
         }
 
@@ -1244,7 +1339,7 @@
             loadHistory();
             if (chatHistory.length === 0) {
                 const conv = getActiveConv();
-                const greeting = conv && conv.prompt
+                const greeting = conv && conv.type === 'rp' && conv.prompt
                     ? '🎭 进入场景「' + conv.name + '」\n' + WELCOME_MSG
                     : WELCOME_MSG;
                 chatHistory.push({ role: 'assistant', content: greeting, time: Date.now() });
@@ -1256,13 +1351,19 @@
             scrollToBottom(false);
         }
 
+        function createChat() {
+            const id = 'chat-' + Date.now();
+            conversations.push({ id, name: '新对话', type: 'chat', updatedAt: Date.now(), lastMsg: '' });
+            saveConversations();
+            switchConv(id);
+        }
+
         function createRP() {
             const nameInput = document.getElementById('rp-name-input');
             const promptInput = document.getElementById('rp-prompt-input');
             const name = nameInput.value.trim();
             const prompt = promptInput.value.trim();
             if (!name) return;
-
             const id = 'rp-' + Date.now();
             conversations.push({ id, name, type: 'rp', prompt, updatedAt: Date.now(), lastMsg: '' });
             saveConversations();
@@ -1271,22 +1372,42 @@
             switchConv(id);
         }
 
-        function deleteRP(id) {
-            if (!confirm('删除这个 RP 场景？聊天记录也会清除~')) return;
+        function renameConv(id) {
+            const conv = conversations.find(c => c.id === id);
+            if (!conv) return;
+            const name = prompt('重命名', conv.name);
+            if (name && name.trim()) {
+                conv.name = name.trim();
+                saveConversations();
+                renderConvList();
+                if (id === activeConvId) updateChatTitle();
+            }
+        }
+
+        function deleteConv(id) {
+            const conv = conversations.find(c => c.id === id);
+            if (!conv) return;
+            const label = conv.type === 'rp' ? 'RP 场景' : '对话';
+            if (!confirm('删除「' + conv.name + '」？记录也会清除~')) return;
             conversations = conversations.filter(c => c.id !== id);
             saveConversations();
-            localStorage.removeItem('ourhome-chat-' + id);
-            if (activeConvId === id) switchConv('main');
-            renderConvList();
+            localStorage.removeItem(id === 'main' ? STORAGE_KEY : 'ourhome-chat-' + id);
+            if (activeConvId === id) {
+                const first = conversations.find(c => c.type === 'chat');
+                if (first) switchConv(first.id);
+                else createChat();
+            } else {
+                renderConvList();
+            }
         }
 
         function updateChatTitle() {
             const titleEl = document.querySelector('.header-title');
-            if (activeConvId === 'main') {
-                titleEl.textContent = 'Shin';
+            const conv = getActiveConv();
+            if (conv) {
+                titleEl.textContent = (conv.type === 'rp' ? '🎭 ' : '') + conv.name;
             } else {
-                const conv = getActiveConv();
-                titleEl.textContent = '🎭 ' + (conv ? conv.name : 'RP');
+                titleEl.textContent = 'Shin';
             }
         }
 
@@ -1304,6 +1425,11 @@
         }
 
         function initChat() {
+            ensureMainConv();
+            if (!conversations.find(c => c.id === activeConvId)) {
+                activeConvId = 'main';
+                sessionStorage.setItem('ourhome-active-conv', 'main');
+            }
             loadHistory();
             if (chatHistory.length === 0) {
                 chatHistory.push({ role: 'assistant', content: WELCOME_MSG, time: Date.now() });
