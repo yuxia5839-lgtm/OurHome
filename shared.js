@@ -145,8 +145,18 @@ function initMusic() {
     document.body.appendChild(btn);
 }
 
+// === 持久储存 ===
+// 正式向浏览器申请"不要随便清掉这个家的数据"
+// Safari 的智能防跟踪会清理久未访问网站的 localStorage，申请持久化能降低被清的概率
+function requestPersistentStorage() {
+    if (navigator.storage && navigator.storage.persist) {
+        navigator.storage.persist().catch(() => {});
+    }
+}
+
 // === 初始化 ===
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initMusic();
+    requestPersistentStorage();
 });

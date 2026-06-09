@@ -438,6 +438,24 @@
             <div class="api-status" id="thinking-status"></div>
         </div>
 
+        <div class="section-label">数 据 备 份</div>
+
+        <div class="api-section">
+            <div class="api-label">📦 全家数据备份</div>
+            <div style="font-size:0.63rem; color:#a89b91; margin-bottom:0.8rem; line-height:1.8;">
+                聊天记录、日记、信件、心愿、心情、API 配置和人格设定，全部都存在<b>当前这个浏览器</b>里。<br>
+                · Safari 网页和"添加到主屏幕"的 App 是<b>两个独立的储物间</b>，数据互相看不见，搬家要靠备份文件<br>
+                · Safari 超过 7 天没打开网站可能会自动清空数据<br>
+                建议定期导出备份，存进手机"文件"里安心~
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                <button class="api-save-btn" onclick="exportData()">导出备份</button>
+                <button class="api-save-btn" onclick="document.getElementById('import-file').click()" style="background:#a89b91;">导入备份</button>
+                <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importData(this.files[0])">
+            </div>
+            <div class="api-status" id="backup-status"></div>
+        </div>
+
         <div class="section-label">集 成 管 理</div>
 
         <div class="setting-card" style="opacity:0.5">
@@ -607,6 +625,81 @@
         document.getElementById('thinking-toggle').checked = s('ourhome-thinking-enabled') === 'true';
         if (s('ourhome-api-source') === 'openrouter') switchApiTab('or');
         updateBadges();
+
+        // === 数据备份 / 恢复 ===
+        function exportData() {
+            const statusEl = document.getElementById('backup-status');
+            const data = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith('ourhome-')) data[k] = localStorage.getItem(k);
+            }
+            if (!Object.keys(data).length) {
+                statusEl.textContent = '这边还没有任何数据可以导出哦';
+                statusEl.style.color = '#c47a6e';
+                return;
+            }
+            const payload = {
+                app: '千千结 · Our Home',
+                version: 1,
+                exportedAt: new Date().toISOString(),
+                data
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const d = new Date();
+            const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
+            a.href = url;
+            a.download = `ourhome-backup-${stamp}.json`;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 1000);
+            statusEl.textContent = `✓ 已导出 ${Object.keys(data).length} 项数据，记得存进"文件"里~`;
+            statusEl.style.color = '#a0b8a0';
+        }
+
+        function importData(file) {
+            const statusEl = document.getElementById('backup-status');
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                let payload;
+                try {
+                    payload = JSON.parse(reader.result);
+                } catch {
+                    statusEl.textContent = '这个文件读不懂…确定是千千结的备份吗？';
+                    statusEl.style.color = '#c47a6e';
+                    return;
+                }
+                const data = payload && payload.data;
+                if (!data || typeof data !== 'object' || !Object.keys(data).some(k => k.startsWith('ourhome-'))) {
+                    statusEl.textContent = '文件里没有找到千千结的数据';
+                    statusEl.style.color = '#c47a6e';
+                    return;
+                }
+                const when = payload.exportedAt ? new Date(payload.exportedAt).toLocaleString('zh-CN') : '未知时间';
+                if (!confirm(`导入 ${when} 的备份？\n同名的现有数据会被备份里的内容覆盖。`)) {
+                    document.getElementById('import-file').value = '';
+                    return;
+                }
+                let count = 0;
+                for (const [k, v] of Object.entries(data)) {
+                    if (k.startsWith('ourhome-') && typeof v === 'string') {
+                        localStorage.setItem(k, v);
+                        count++;
+                    }
+                }
+                document.getElementById('import-file').value = '';
+                statusEl.textContent = `✓ 已恢复 ${count} 项数据，正在回家…`;
+                statusEl.style.color = '#a0b8a0';
+                setTimeout(() => location.reload(), 1200);
+            };
+            reader.readAsText(file);
+        }
 
         // 主题切换
         function setTheme(mode) {
