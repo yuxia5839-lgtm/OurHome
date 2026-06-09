@@ -437,7 +437,7 @@
         .msg-popup {
             display: flex;
             gap: 3px;
-            margin-top: 4px;
+            align-self: center;
             animation: msgIn 0.15s ease-out;
         }
         .popup-btn {
@@ -851,7 +851,11 @@
             };
             popup.appendChild(copyBtn);
 
-            msgEl.appendChild(popup);
+            if (isUser) {
+                msgEl.insertBefore(popup, msgEl.firstChild);
+            } else {
+                msgEl.appendChild(popup);
+            }
             setTimeout(dismissPopup, 4000);
             setTimeout(() => {
                 const handler = (e) => {
