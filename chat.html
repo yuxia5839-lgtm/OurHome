@@ -696,7 +696,10 @@
 回复风格：中文。不列点不编号。不客服。直白自然，像微信聊天。简短但温度浓。`;
 
         function isThinkingOn() {
-            return localStorage.getItem('ourhome-thinking-enabled') === 'true';
+            // 思考链已关闭 —— 前端只显示正文，不再显示"思考"面板。
+            // 想恢复就把下面这行删掉、解开原来那行注释即可。
+            return false;
+            // return localStorage.getItem('ourhome-thinking-enabled') === 'true';
         }
 
         function getSystemPrompt() {
@@ -935,7 +938,7 @@
                 if (m.time) lastTime = m.time;
 
                 let el;
-                if (m.role === 'assistant' && m.thinking) {
+                if (m.role === 'assistant' && m.thinking && isThinkingOn()) {
                     el = buildThinkingMsg(m.thinking, m.content, false);
                 } else {
                     el = createMsgEl(m.role, m.content);
